@@ -1,7 +1,5 @@
 <h1 style="center">基于 UDP 的 TFTP 文件传输项目</h1>
 
-[TOC]
-
 # 一、TFTP 传输模型的介绍
 
 基于 UDP 通信的 TFTP (Trivial File Transfer Protocol，简单文件传输协议)，是一种用于在网络中进行文件传输的简单协议。TFTP 设计简单，易于实现，通常用于传输小文件或在不支持复杂协议的环境中使用。
