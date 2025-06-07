@@ -2,8 +2,6 @@
 
 主要内容是 Linux 下的网络编程。
 
-[TOC]
-
 # 一、Linux 入门
 
 ## 1.1 Linux 环境搭建
@@ -307,7 +305,7 @@ Continuing.
 
 ## 7.1 基于 UDP 的 TFTP 文件传输项目
 
-[TFTP 项目]()
+[TFTP 项目](https://github.com/nuo534202/My-01-University-Notes/tree/main/C%2B%2B%20Advanced/%E5%9F%BA%E4%BA%8E%20UDP%20%E7%9A%84%20TFTP%20%E6%96%87%E4%BB%B6%E4%BC%A0%E8%BE%93%E9%A1%B9%E7%9B%AE)
 
 ## 7.2 基于 TCP 的网络聊天室
 
