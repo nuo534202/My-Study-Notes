@@ -1,6 +1,6 @@
 <h1 style="text-align:center;">C++ 进阶 —— 01 University</h1>
 
-主要内容是 Linux 下的网络编程。
+主要内容是 Linux 下的网络编程，操作系统是 Linux (CentOS)。
 
 # 一、Linux 入门
 
@@ -221,9 +221,8 @@ int main() {
 ```
 [nuo@01-Desktop]$ g++ -g 05test.cpp // 编译程序
 [nuo@01-Desktop]$ ./a.out & // 后台运行程序
-[1] 26837 //显示当前后台运行程序的作业号和
-进程号
-[nuo@01-Desktop]$ gdb -p 26837 //调试指定的运行的进程
+[1] 26837 // 显示当前后台运行程序的作业号和进程号
+[nuo@01-Desktop]$ gdb -p 26837 // 调试指定的运行的进程
 GNU gdb (GDB) Red Hat Enterprise Linux 7.6.1-120.el7
 Copyright (C) 2013 Free Software Foundation, Inc.
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
@@ -245,7 +244,7 @@ Loaded symbols for /lib64/libc.so.6
 Reading symbols from /lib64/ld-linux-x86-64.so.2...(no debugging symbols found)...done.
 Loaded symbols for /lib64/ld-linux-x86-64.so.2
 main (argc=1, argv=0x7ffd31897908) at 05test.cpp:17
-17 int main(int argc, const char *argv[]) //进程运行在某处
+17 int main(int argc, const char *argv[]) // 进程运行在某处
 Missing separate debuginfos, use: debuginfo-install glibc-2.17-326.el7_9.x86_64 libgcc-4.8.5-44.el7.x86_64
 libstdc++-4.8.5-44.el7.x86_64
 (gdb) n
@@ -260,6 +259,169 @@ test1 () at 05test.cpp:12
 (gdb) c
 Continuing.
 ```
+
+### 1.2.4 库的制作（动态库于静态库）
+
+**准备程序**
+
+**add.h**
+
+```cpp
+#ifndef _ADD_H // 防止头文件重复包含
+#define _ADD_H
+
+int add(int m, int n);
+
+#endif
+```
+
+**add.cpp**
+
+```cpp
+int add(int m, int n) {
+	return m + n;
+}
+```
+
+**main.cpp**
+
+```cpp
+#include <iostream>
+#include "add.h"
+using namespace std;
+
+int main(int argc, const char *argv[]) {
+	cout << add(3, 8) << endl;
+	return 0;
+}
+```
+
+1. 为什么引入库？
+   
+   在上述案例中，主程序要是有的源程序代码，在 `add.cpp` 中，如果项目结束后，到了交付阶段，由于主程序的生成需要其他程序联合编译，那么就要将源程序打包一起发给老板，这样该程序的开发者自身的价值就不大了，该项目的知识产权就很容易被窃取。为了保护我们的知识产权，我们引入了库的概念。
+
+2. 什么是库？
+   库在 linux 中是一个二进制文件，它是由 `.cpp` 文件（不包含 `main` 函数）编译而来，其他程序如果想要使用该源文件中的函数时，只需在编译生成可执行程序时，链接上该源文件生成的库文件即可。库中存储的是二进制文件，不容易被窃取知识产权，做到了保护作用。
+
+库在linux系统中分为两类，分别是静态库和动态库。
+
+- Windows 系统
+  - `***.lib`：静态库
+  - `***.dll`：动态库
+- Linux 系统
+  - `***.a`：静态库
+  - `***.so`：动态库
+
+3. 静态库
+
+   概念：将一个 `***.cpp` 的文件编译生成一个 `lib***.a` 的二进制文件，当你需要使用该源文件中的函数时， 只需要链接该库即可，后期可以直接调用。
+
+   静态体现在：在使用 `g++` 编译程序时，会将你的文件和库最终生成一个可执行程序（把静态库也放入到可执行程序中），每个可执行程序单独拥有一个静态库，体积较大，但是，执行效率较高。
+
+   **编译生成静态库**
+
+   ```
+   gcc -c ***.cpp -o ***.o // 只编译不链接生成二进制文件，最后会生成一个 .o 文件
+   ar -crs lib***.a ***.o // 编译生成静态库，静态库为 lib***.a
+   
+   如果有多个 .o 文件共同编译生成静态库：ar -crs lib***.a ***.o xxx.o ...
+   
+   ar：用于生成静态库的指令
+   c：(create)，用于创建静态库
+   r：(recover)，将文件插入或者替换静态库中同名文件
+   s：(reset)，重置金泰克索引
+   ```
+
+   **使用静态库**
+
+   ```
+   gcc main.cpp -o main -L 库的路径 -l库名 -I 头文件的名字
+   // 如果在当前路径，则路径输入 .
+   // 例如，g++ main.cpp -o main -L . -ladd -I .
+
+   ./main
+   ```
+
+4. 动态库
+
+   概念：将一个 `***.cpp` 的文件编译生成一个 `lib***.so` 的二进制文件，当你需要使用该源文件中的函数时， 只需要链接该库即可，后期可以直接调用。
+
+   动态体现在：在使用 `g++` 编译程序时，会将你的文件和库中的相关函数的索引表一起生成一个可执行程序，每个可执行程序只拥有函数的索引表，当程序执行到对应函数时，会根据索引表，动态寻找相关库所在位置进行调用，体积较小，执行效率较低，但是可以多个程序共享同一个动态库，所以，动态库也叫共享库。
+
+   **编译生成动态库**
+
+   ```
+   g++ -fPIC -c ***.cpp -o ***.o // 编译生成二进制文件
+   g++ -shared ***.o -o lib***.so // 依赖于二进制文件生成一个动态库
+   
+   // 上述两个指令可以合成一个指令
+   g++ -fPIC -shared ***.cpp -o lib***.so
+   ```
+
+   **使用动态库**
+
+   ```
+   gcc main.cpp -L 库的路径 -l库名 -I 头文件的名字
+   ```
+
+   **出现错误**
+
+   ```
+   ./main: error while loading shared libraries: libadd.so: cannot open shared object file: No such file or directory
+   // 可执行程序已经生成，运行时报错了
+   ```
+
+   **解决方法**
+
+   1. 更改路径的宏
+   ```
+   export LD_LIBRARY_PATH=库的路径
+   ```
+   2. 将自己的动态库放入到系统的库函数目录中（`lib64` 或者 `/usr/lib64`）
+
+   **动态库和静态库编译生成的可执行程序大小：动态库 < 静态库**
+
+### 1.2.5 如何使用第三方库
+
+1. `C/C++` 语言默认是支持标准输入输出库的，但是其他的相关函数库需要第三方引入，并且，编译程
+序时，需要链接上对应的库。
+2. 使用数学库：`#include <math.h>`
+   ```
+   g++ main.cpp -o main -lm -lc
+   // -lm: 使用数学库，需要连接上对应的数学库
+   // -lc: 链接标准的 c 库
+   ```
+3. 线程支持类库
+   如果不能使用线程支持库，通过 `sudo yum install manpages-posix manpages-posix-dev` 指令安装一下即可。
+
+   **test.cpp**
+
+   ```cpp
+   #include <iostream>
+   #include <pthread.h>
+   #include <unistd.h>
+   using namespace std;
+
+   void *task(void *arg) {
+      while (1) {
+         cout << "Hello World" << endl;
+         sleep(1);
+      }
+   }
+
+   int main(int agrc, const char *agrv[]) {
+      pthread_t tid;
+
+      if (pthread_create(&tid, NULL, task, NULL) != 0) {
+         cout << "pthread_create error" << endl;
+      }
+
+      while (1);
+      return 0;
+   }
+   ```
+
+   对于线程支持库的相关函数，必须链接相关的库：`g++ test.cpp -o test -lpthread`。
 
 ## 1.3 Makefile 文件和 Cmake 文件
 
