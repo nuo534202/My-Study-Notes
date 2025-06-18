@@ -1,6 +1,5 @@
 课程链接：[EasyX 快速入门](https://www.bilibili.com/video/BV11p4y1i74A/?spm_id_from=333.337.search-card.all.click&vd_source=714a6e39b95bf9fd6a45f805e9d4b5f9)
 
-@[toc]
 EasyX 是针对 C++ 的图形库，源文件只能是 `.cpp` 文件。
 
 # EasyX 坐标和设备
