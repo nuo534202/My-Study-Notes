@@ -1,4 +1,4 @@
-<h1 style="text-align:center;">C++ 进阶 —— 01 University</h1>
+<h1 style="text-align:center;">C++ 进阶</h1>
 
 主要内容是 Linux 下的网络编程，操作系统是 Linux 系统 (CentOS)。接下来的内容都是我的个人笔记。
 
