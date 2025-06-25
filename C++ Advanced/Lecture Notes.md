@@ -1,6 +1,6 @@
 <h1 style="text-align:center;">C++ 进阶 —— 01 University</h1>
 
-主要内容是 Linux 下的网络编程，操作系统是 CentOS。接下来的内容都是我的个人笔记。
+主要内容是 Linux 下的网络编程，操作系统是 Linux 系统 (CentOS)。接下来的内容都是我的个人笔记。
 
 # 一、Linux 入门
 
@@ -260,7 +260,7 @@ test1 () at 05test.cpp:12
 Continuing.
 ```
 
-### 1.2.4 库的制作（动态库于静态库）
+### 1.2.4 库的制作（动态库与静态库）
 
 **准备程序**
 
@@ -298,12 +298,12 @@ int main(int argc, const char *argv[]) {
 
 1. 为什么引入库？
    
-   在上述案例中，主程序要是有的源程序代码，在 `add.cpp` 中，如果项目结束后，到了交付阶段，由于主程序的生成需要其他程序联合编译，那么就要将源程序打包一起发给老板，这样该程序的开发者自身的价值就不大了，该项目的知识产权就很容易被窃取。为了保护我们的知识产权，我们引入了库的概念。
+	在上述案例中，主程序要是有的源程序代码，在 `add.cpp` 中，如果项目结束后，到了交付阶段，由于主程序的生成需要其他程序联合编译，那么就要将源程序打包一起发给老板，这样该程序的开发者自身的价值就不大了，该项目的知识产权就很容易被窃取。为了保护我们的知识产权，我们引入了库的概念。
 
 2. 什么是库？
-   库在 linux 中是一个二进制文件，它是由 `.cpp` 文件（不包含 `main` 函数）编译而来，其他程序如果想要使用该源文件中的函数时，只需在编译生成可执行程序时，链接上该源文件生成的库文件即可。库中存储的是二进制文件，不容易被窃取知识产权，做到了保护作用。
+	库在 linux 中是一个二进制文件，它是由 `.cpp` 文件（不包含 `main` 函数）编译而来，其他程序如果想要使用该源文件中的函数时，只需在编译生成可执行程序时，链接上该源文件生成的库文件即可。库中存储的是二进制文件，不容易被窃取知识产权，做到了保护作用。
 
-库在linux系统中分为两类，分别是静态库和动态库。
+库在 Linux 系统中分为两类，分别是 **静态库** 和 **动态库**。
 
 - Windows 系统
   - `***.lib`：静态库
@@ -314,72 +314,72 @@ int main(int argc, const char *argv[]) {
 
 3. 静态库
 
-   概念：将一个 `***.cpp` 的文件编译生成一个 `lib***.a` 的二进制文件，当你需要使用该源文件中的函数时， 只需要链接该库即可，后期可以直接调用。
+   	概念：将一个 `***.cpp` 的文件编译生成一个 `lib***.a` 的二进制文件，当你需要使用该源文件中的函数时， 只需要链接该库即可，后期可以直接调用。
 
-   静态体现在：在使用 `g++` 编译程序时，会将你的文件和库最终生成一个可执行程序（把静态库也放入到可执行程序中），每个可执行程序单独拥有一个静态库，体积较大，但是，执行效率较高。
+  	静态体现在：在使用 `g++` 编译程序时，会将你的文件和库最终生成一个可执行程序（把静态库也放入到可执行程序中），每个可执行程序单独拥有一个静态库，体积较大，但是，执行效率较高。
 
-   **编译生成静态库**
+	**编译生成静态库**
 
-   ```
-   gcc -c ***.cpp -o ***.o // 只编译不链接生成二进制文件，最后会生成一个 .o 文件
-   ar -crs lib***.a ***.o // 编译生成静态库，静态库为 lib***.a
-   
-   如果有多个 .o 文件共同编译生成静态库：ar -crs lib***.a ***.o xxx.o ...
-   
-   ar：用于生成静态库的指令
-   c：(create)，用于创建静态库
-   r：(recover)，将文件插入或者替换静态库中同名文件
-   s：(reset)，重置金泰克索引
-   ```
+	```
+	gcc -c ***.cpp -o ***.o // 只编译不链接生成二进制文件，最后会生成一个 .o 文件
+	ar -crs lib***.a ***.o // 编译生成静态库，静态库为 lib***.a
 
-   **使用静态库**
+	如果有多个 .o 文件共同编译生成静态库：ar -crs lib***.a ***.o xxx.o ...
 
-   ```
-   gcc main.cpp -o main -L 库的路径 -l库名 -I 头文件的名字
-   // 如果在当前路径，则路径输入 .
-   // 例如，g++ main.cpp -o main -L . -ladd -I .
+	ar：用于生成静态库的指令
+	c：(create)，用于创建静态库
+	r：(recover)，将文件插入或者替换静态库中同名文件
+	s：(reset)，重置金泰克索引
+	```
 
-   ./main
-   ```
+   	**使用静态库**
+
+	```
+	gcc main.cpp -o main -L 库的路径 -l库名 -I 头文件的名字
+	// 如果在当前路径，则路径输入 .
+	// 例如，g++ main.cpp -o main -L . -ladd -I .
+
+	./main
+	```
 
 4. 动态库
 
-   概念：将一个 `***.cpp` 的文件编译生成一个 `lib***.so` 的二进制文件，当你需要使用该源文件中的函数时， 只需要链接该库即可，后期可以直接调用。
+	概念：将一个 `***.cpp` 的文件编译生成一个 `lib***.so` 的二进制文件，当你需要使用该源文件中的函数时， 只需要链接该库即可，后期可以直接调用。
 
-   动态体现在：在使用 `g++` 编译程序时，会将你的文件和库中的相关函数的索引表一起生成一个可执行程序，每个可执行程序只拥有函数的索引表，当程序执行到对应函数时，会根据索引表，动态寻找相关库所在位置进行调用，体积较小，执行效率较低，但是可以多个程序共享同一个动态库，所以，动态库也叫共享库。
+	动态体现在：在使用 `g++` 编译程序时，会将你的文件和库中的相关函数的索引表一起生成一个可执行程序，每个可执行程序只拥有函数的索引表，当程序执行到对应函数时，会根据索引表，动态寻找相关库所在位置进行调用，体积较小，执行效率较低，但是可以多个程序共享同一个动态库，所以，动态库也叫共享库。
 
-   **编译生成动态库**
+	**编译生成动态库**
 
-   ```
-   g++ -fPIC -c ***.cpp -o ***.o    // 编译生成二进制文件
-   g++ -shared ***.o -o lib***.so   // 依赖于二进制文件生成一个动态库
-   
-   // 上述两个指令可以合成一个指令
-   g++ -fPIC -shared ***.cpp -o lib***.so
-   ```
+	```
+	g++ -fPIC -c ***.cpp -o ***.o    // 编译生成二进制文件
+	g++ -shared ***.o -o lib***.so   // 依赖于二进制文件生成一个动态库
 
-   **使用动态库**
+	// 上述两个指令可以合成一个指令
+	g++ -fPIC -shared ***.cpp -o lib***.so
+	```
 
-   ```
-   gcc main.cpp -L 库的路径 -l库名 -I 头文件的名字
-   ```
+	**使用动态库**
 
-   **出现错误**
+	```
+	gcc main.cpp -L 库的路径 -l库名 -I 头文件的名字
+	```
 
-   ```
-   ./main: error while loading shared libraries: libadd.so: cannot open shared object file: No such file or directory
-   // 可执行程序已经生成，运行时报错了
-   ```
+	**出现错误**
 
-   **解决方法**
+	```
+	./main: error while loading shared libraries: libadd.so: cannot open shared object file: No such file or directory
+	// 可执行程序已经生成，运行时报错了
+	```
 
-   1. 更改路径的宏
-   ```
-   export LD_LIBRARY_PATH=库的路径
-   ```
-   2. 将自己的动态库放入到系统的库函数目录中（`lib64` 或者 `/usr/lib64`）
+	**解决方法**
 
-   **动态库和静态库编译生成的可执行程序大小：动态库 < 静态库**
+	1. 更改路径的宏
+	```
+	export LD_LIBRARY_PATH=库的路径
+	```
+	2. 将自己的动态库放入到系统的库函数目录中（`lib64` 或者 `/usr/lib64`）
+
+	**动态库和静态库编译生成的可执行程序大小：动态库 < 静态库**
 
 ### 1.2.5 如何使用第三方库
 
@@ -387,42 +387,42 @@ int main(int argc, const char *argv[]) {
 序时，需要链接上对应的库。
 2. 使用数学库：`#include <math.h>`
 
-   ```
-   g++ main.cpp -o main -lm -lc
-   // -lm: 使用数学库，需要连接上对应的数学库
-   // -lc: 链接标准的 c 库
-   ```
+	```
+	g++ main.cpp -o main -lm -lc
+	// -lm: 使用数学库，需要连接上对应的数学库
+	// -lc: 链接标准的 c 库
+	```
 3. 线程支持类库
-   如果不能使用线程支持库，通过 `sudo yum install manpages-posix manpages-posix-dev` 指令安装一下即可。
+	如果不能使用线程支持库，通过 `sudo yum install manpages-posix manpages-posix-dev` 指令安装一下即可。
 
-   **test.cpp**
+	**test.cpp**
 
-   ```cpp
-   #include <iostream>
-   #include <pthread.h>
-   #include <unistd.h>
-   using namespace std;
+	```cpp
+	#include <iostream>
+	#include <pthread.h>
+	#include <unistd.h>
+	using namespace std;
 
-   void *task(void *arg) {
-      while (1) {
-         cout << "Hello World" << endl;
-         sleep(1);
-      }
-   }
+	void *task(void *arg) {
+		while (1) {
+			cout << "Hello World" << endl;
+			sleep(1);
+		}
+	}
 
-   int main(int agrc, const char *agrv[]) {
-      pthread_t tid;
+	int main(int agrc, const char *agrv[]) {
+		pthread_t tid;
 
-      if (pthread_create(&tid, NULL, task, NULL) != 0) {
-         cout << "pthread_create error" << endl;
-      }
+		if (pthread_create(&tid, NULL, task, NULL) != 0) {
+			cout << "pthread_create error" << endl;
+		}
 
-      while (1);
-      return 0;
-   }
-   ```
+		while (1);
+		return 0;
+	}
+	```
 
-   对于线程支持库的相关函数，必须链接相关的库：`g++ test.cpp -o test -lpthread`。
+	对于线程支持库的相关函数，必须链接相关的库：`g++ test.cpp -o test -lpthread`。
 
 ## 1.3 Makefile 文件
 
@@ -538,10 +538,10 @@ Hello.i: Hello.cpp
 
 ```Makefile
 Hello: Hello.o
-        g++ Hello.o -o Hello
+	g++ Hello.o -o Hello
 
 Hello.o: Hello.cpp
-        g++ -c Hello.cpp -o Hello.o
+	g++ -c Hello.cpp -o Hello.o
 ```
 
 4. 执行 Makefile 文件
@@ -933,19 +933,19 @@ clean:
 
 ### 1.5.2 为什么要使用 CMake
 
-1. 在不使用 CMake 时，编译工程如下
+1. 在不使用 CMake 时，编译工程如下，不同平台的工具使用了不同的编译器，操作比较复杂。
 
 ![img1](./img/img1.png#pic_center)
 
-2. 在上面的机制中，如果要向工程文件中添加一个源文件 `bar.cpp`
+2. 在上面的机制中，如果要向工程文件中添加一个源文件 `bar.cpp` 需要手动的向每一个工具中添加，操作非常麻烦。
 
 ![img2](./img/img2.png#pic_center)
 
-3. 使用 CMake 来管理工程的状态
+3. 使用 CMake 来管理工程的状态。
 
 ![img3](./img/img3.png#pic_center)
 
-4. 使用 CMkake 管理工程，向工程中添加一个新文件 `bar.cpp`
+4. 使用 CMkake 管理工程，向工程中添加一个新文件 `bar.cpp`，CMake 指令会根据平台将文件加到对应的工具中。
 
 ![img4](./img/img4.png#pic_center)
 
@@ -954,16 +954,16 @@ clean:
 1. 基本语法：`指令 (参数1 参数2 ...)`
    - 参数使用括号括起来。
    - 参数之间使用空格或分号隔开。
-2.  注意：指令是大小写无关的，但是参数和变量是大小写相关的。
+2.  注意：**指令** 是大小写 **无关** 的，但是 **参数** 和 **变量** 是大小写 **相关** 的。
 ```cmake
-set(HELLO hello.cpp) # 定义一个变量名叫 HELLO 变量的值为 hello.cpp
+set(HELLO hello.cpp)	# 定义一个变量名叫 HELLO 变量的值为 hello.cpp
 add_executable(hello main.cpp hello.cpp)  # 通过main.cpp 和 hello.cpp 编译生成 hello 可执行程序
 ADD_EXECUTABLE(hello main.cpp ${HELLO})   # 作用同上
 ```
-3. 变量使用 `${}` 进行取值，但是在 `if` 控制语句中，是直接使用变量名的。
-   - if(HELLO) 是正确的
-   - if(${HELLO}) 是不正确的
-4. 语句不以分号结束。
+1. 变量使用 `${}` 进行取值，但是在 `if` 控制语句中，是直接使用变量名的。
+   - `if(HELLO)` 是正确的
+   - `if(${HELLO})` 是不正确的
+2. 语句不以分号结束。
 
 ### 1.5.4 重要的指令
 
@@ -975,7 +975,7 @@ cmake_minimum_required(VERSION 2.8)
 2. `project`：定义工程的名称，并可以指定工程支持的语言。
 ```cmake
 # 指定工程的名称为 HELLOWORLD
-project(HELLOWORLD CXX)	# 表示工程名为 HELLOWORLD 使用的语言为 C++
+project(HELLOWORLD CXX)	# 表示工程名为 HELLOWORLD， 使用的语言为 C++
 ```
 3. `set`：显式定义变量。
 ```cmake
@@ -984,22 +984,22 @@ set(SRC sayhello.cpp hello.cpp)
 ```
 4. `add_executable`：通过依赖生成可执行程序。
 ```cmake
-# 编译main.cpp 生成 main 的可执行程序
+# 编译 main.cpp 生成 main 的可执行程序
 add_executable(main main.cpp)
 ```
 5. `include_directories`：向工程添加多个特定的头文件搜索路径，类似于 `g++` 编译指令中的 `-I`。
 ```cmake
-# 将 /usr/lib/mylibfolder 和 ./include 添加到工程路径中
-include_directories(/usr/lib/mylibfolder ./include)
+# 将 /usr/lib/mylibfolder 和 ./lib 添加到工程路径中
+include_directories(/usr/lib/mylibfolder ./lib)
 ```
 6. `link_directories`：向工程中添加多个特定的库文件搜索路径，类似于 `g++` 编译指令的 `-L` 选项。
 ```cmake
-# 将将 /usr/lib/mylibfolder 和 ./lib 添加到库文件搜索路径中
+# 将 /usr/lib/mylibfolder 和 ./lib 添加到库文件搜索路径中
 link_directories(/usr/lib/mylibfolder ./lib)
 ```
 7. `add_library`：生成库文件（包括动态库和静态库）。
 ```cmake
-# 通过 SRC 变量中的文件，生成动态库
+# 通过 SRC 变量中的文件，生成库
 add_library(hello SHARED ${SRC})	# 该语句生成的是动态库
 add_library(hello STATIC ${SRC})	# 该语句生成的是静态库
 ```
@@ -1037,6 +1037,8 @@ CMake 目录结构：项目主目录中会放一个 `CMakeLists.txt` 的文本�
 1. 包含源文件的子文件夹中包含 `CMakeLists.txt` 文件时，主目录的 `CMakeLists.txt` 要通过 `add_subdirector` 添加子目录。
 2. 包含源文件的子文件夹中不包含 `CMakeLists.txt` 文件时，子目录编译规则，体现在主目录中的 `CMakeLists.txt`。
 
+**两种构建方式**
+
 (1) 内部构建：不推荐使用
 
 内部构建会在主目录下，产生一大堆中间文件，这些中间文件并不是我们最终所需要的，和工程源文件放在一起时，会显得比较杂乱无章。
@@ -1044,7 +1046,7 @@ CMake 目录结构：项目主目录中会放一个 `CMakeLists.txt` 的文本�
 ```cmake
 ## 内部构建
 
-# 在当前目录下，编译主目录中的CMakeLists.txt 文件生成 Makefile 文件
+# 在当前目录下，编译主目录中的 CMakeLists.txt 文件生成 Makefile 文件
 cmake .		# . 表示当前路径
 # 执行make命令，生成目标文件
 make
@@ -1064,9 +1066,9 @@ mkdir build
 cd build
 
 # 3、编译上一级目录中的 CMakeLists.txt，生成 Makefile 文件以及其他文件
-cmake ..	# ..表示上一级目录
+cmake ..	# .. 表示上一级目录
 
-# 4、执行make命令，生成可执行程序
+# 4、执行 make 命令，生成可执行程序
 make
 ```
 
@@ -1079,10 +1081,10 @@ make
 `Hello.cpp`
 
 ```cpp
-#include <myhead.h>
+#include <iostream>
 
 int main(int argc, const char * argv[]) {
-	std::cout << "Hello World!" << endl;
+	std::cout << "Hello World!" << std::endl;
 	return 0;
 }
 ```
@@ -1094,41 +1096,126 @@ g++ Hello.cpp -o Hello
 ./Hello
 ```
 
-(2) `CmakeList.txt` 文件
+(2) `CmakeLists.txt` 文件
 
 ```cmake
-# 设置最小版本支持
+# 设置最小版本中支持
 cmake_minimum_required(VERSION 2.8)
 
 # 项目名称
 project(HELLO)
 
-# 生成可执行程序，依赖于 Hello.cpp 生成 Hello 可执行程序
-add_executable(Hello Hello.cpp)
+# 生成可执行程序，依赖于 hello.cpp 生成 hello 可执行程序
+add_executable(hello hello.cpp)
 ```
 
 (3) 内部构建
 
+```
+cd CMake/test1
+cmake .
+make
+./hello
+```
+
+会额外生成 `cmake_install.cmake`，`CMakeCache.txt`，`Makefile	` 这两个中间文件。
+
 (4) 外部编译
+
+```
+mkdir build
+cd build
+cmake ..
+make
+./hello
+```
+
+所有生成的中间文件都会储存在 build 文件夹下。
 
 **2. 分文件编译**
 
-(1) 头文件
+(1) 头文件 `swap.h`
 
 ```cpp
 #ifndef SWAP_H
 #define SWAP_H
 
+// 声明一个自定义交换类
+class MySwap {
+public:
+    int a, b; // 两个成员变量
+
+    // 定义构造函数
+    MySwap(int a, int b) {
+        this->a = a;
+        this->b = b;
+    }
+
+    // 声明交换函数 
+    void run();
+
+    // 声明打印函数
+    void printInfo();
+};
+
 #endif
 ```
 
-(2) 源文件
+(2) 源文件 `swap.cpp`
 
-(3) 测试文件
+```cpp
+#include <iostream>
+#include "swap.h"
+
+// 对交换函数的定义
+void MySwap::run() {
+    a = a ^ b;
+    b = a ^ b;
+    a = a ^ b;
+}
+
+void MySwap::printInfo() {
+    std::cout << a << " " << b << std::endl;
+}
+```
+
+(3) 测试文件 `main.cpp`
+
+```cpp
+#include "swap.h"
+
+int main(int argc, const char * argv[]) {
+    MySwap mySwap(10, 20);
+    mySwap.printInfo();
+    mySwap.run();
+    mySwap.printInfo();
+    return 0;
+}
+```
 
 (4) 分文件编译使用 `g++` 编译器生成可执行程序
 
+```
+// 联合编译，-I 是指定头文件路径
+g++ main.cpp src/swap.cpp -I include -o main
+./main
+```
+
 (5) 创建工程管理文件 `CMakelist.txt`
+
+```cmake
+# 设置最小版本支持
+cmake_minimum_required(VERSION 3.5)
+
+# 指定项目名称
+project(SWAP)
+
+# 指定头文件路径，相当于 g++ 编译命令中的 -I 指令
+include_directories(include)
+
+# 生成可执行文件
+add_executable(main main.cpp src/swap.cpp)
+```  
 
 # 二、标准 IO 和文件 IO
 
