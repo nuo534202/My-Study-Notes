@@ -1217,14 +1217,14 @@ include_directories(include)
 add_executable(main main.cpp src/swap.cpp)
 ```  
 
-# 二、标准 IO 和文件 IO
+# 二、IO 操作（外部文件操作）
 
 ## 2.1 标准 IO 和文件 IO 的区别
 
 ### 2.1.1 IO 的概念
 
 1. IO：顾名思义就是输入输出，程序与外部设备进行信息交换的过程称为 IO 操作。
-2. 最先接触的IO：`#include<stdio.h>` 标准的缓冲输入输出头文件。
+2. 最先接触的IO：`#include <stdio.h>` 标准的缓冲输入输出头文件。
 
 ### 2.1.2 IO 的分类
 
@@ -1232,15 +1232,18 @@ add_executable(main main.cpp src/swap.cpp)
 2. 文件 IO：基于系统调用完成，每进行一次系统调用，进程会从用户空间向内核空间进行一次切换，当用户空间与内核空间进行切换时，进程就会进入一次挂起状态，从而导致进程执行效率低。
 3. 文件 IO 与标准 IO 的区别：标准 IO 相比于文件 IO 而言，提供了缓冲区，用户可以将数据先放入缓冲区中，等到缓冲区时机到了后，统一进行一次系统调用，将数据刷入内核空间。
 
-<!-- img -->
+![img5](./img/img5.png#pic_center)
 
-1. 标准 IO 接口：`printf`/`scanf`、`fopen`/`fclose`、`fgetc`/`fputc`、`fgets`/`futs`、`fprintf`/`fscaf`、`fread`/`fwrite`、`fseek`/`ftell`/`rewind`。文件 IO 接口：`open`/`close`、`read`/`write`、`lseek`。
+左边的图是标准 IO 的执行过程，右边的图左边分支是文件 IO，右边分支是标准 IO。
+
+1. 标准 IO 接口：`printf`/`scanf`、`fopen`/`fclose`、`fgetc`/`fputc`、`fgets`/`futs`、`fprintf`/`fscaf`、`fread`/`fwrite`、`fseek`/`ftell`/`rewind`。
+2. 文件 IO 接口：`open`/`close`、`read`/`write`、`lseek`。
 
 ## 2.2 标准 IO 相关内容
 
 ### 2.2.1 标准 IO 的实现原理
 
-<!-- img -->
+![img6](./img/img6.png#pic_center)
 
 ### 2.2.2 FILE 结构体的介绍
 
@@ -1249,9 +1252,9 @@ add_executable(main main.cpp src/swap.cpp)
 ```cpp
 struct FILE {
 	char * _IO_buf_base;	// 缓冲区的起始地址
-	char * _IO_buf_end;		// 缓冲区的终止地址
+	char * _IO_buf_end; 	// 缓冲区的终止地址
 
-	int _fileno;			// 文件描述符，用于系统调用
+	int _fileno;		// 文件描述符，用于系统调用
 };
 ```
 3. 特殊的 `FILE` 指针，这三个指针，全部都是针对于终端文件而言的，当程序启动后，系统默认打开的三个特殊文件指针。
@@ -1265,13 +1268,13 @@ struct FILE {
 2. `FILE *fopen(const char *path, const char *mode);`
 3. 功能：打开一个文件，并返回当前文件的文件指针。
 4. 参数 1：表示文件路径，是一个字符串
-5. 参数2：打开文件的方式，也是一个字符串，字符串必须以以下的字符开头。
-   - `r`：以只读的形式打开文件，文件光标定位在开头部分
-   - `r+`：以读写的形式打开文件，文件光标定位在开头部分
-   - `w`：以只写的形式打开文件，如果文件不存在，就创建文件，如果文件存在，就清空，光标定位在开头
-   - `w+`：以读写的形式打开文件，如果文件不存在，就创建文件，如果文件存在，就清空，光标定位在开头
-   - `a` 以追加（结尾写）的形式打开文件，如果文件不存在就创建文件，光标定位在文件末尾
-   - `a+` 以读写的形式打开文件，如果文件不存在就创建文件，如果文件存在，读取操作光标定位在开头，写操作光标定位在结尾
+5. 参数 2：打开文件的方式，也是一个字符串，字符串必须以以下的字符开头。
+   - `r`：以只读的形式打开文件，文件光标定位在开头部分。
+   - `r+`：以读写的形式打开文件，文件光标定位在开头部分。
+   - `w`：以只写的形式打开文件，如果文件不存在，就创建文件，如果文件存在，就清空，光标定位在开头。
+   - `w+`：以读写的形式打开文件，如果文件不存在，就创建文件，如果文件存在，就清空，光标定位在开头。
+   - `a`：以追加（结尾写）的形式打开文件，如果文件不存在就创建文件，光标定位在文件末尾。
+   - `a+`：以读写的形式打开文件，如果文件不存在就创建文件，如果文件存在，读取操作光标定位在开头，写操作光标定位在结尾。
 6. 返回值：成功返回打开的文件指针，失败返回NULL并置位错误码
 
 ```cpp
@@ -1337,16 +1340,886 @@ int main(int argc, const char *argv[]) {
 也比较复杂，系统就给每种不同的错误信息起了一个编号，用一个整数表示，这个整数就是错误码。
 2. 错误码都是大于或等于 $0$ 的数字：
 
-## 2.3 文件 IO 相关内容
+```
+#define EPERM		1	/* Operation not permitted */	操作受限
+#define ENOENT		2	/* No such file or directory */	没有当前文件或目录
+#define ESRCH		3	/* No such process */		没有进程
+#define EINTR		4	/* Interrupted system call */	中断系统调用
+#define EIO 		5	/* I/O error */
+#define ENXIO		6	/* No such device or address */
+#define E2BIG		7	/* Argument list too long */
+#define ENOEXEC 	8	/* Exec format error */
+#define EBADF		9	/* Bad file number */
+#define ECHILD		10	/* No child processes */
+#define EAGAIN		11	/* Try again */
+#define ENOMEM		12	/* Out of memory */
+#define EACCES		13	/* Permission denied */
+#define EFAULT		14	/* Bad address */
+#define ENOTBLK		15	/* Block device required */
+#define EBUSY		16	/* Device or resource busy */
+#define EEXIST		17	/* File exists */
+#define EXDEV		18	/* Cross-device link */
+#define ENODEV		19	/* No such device */
+#define ENOTDIR		20	/* Not a directory */
+#define EISDIR		21	/* Is a directory */
+#define EINVAL		22	/* Invalid argument */
+#define ENFILE		23	/* File table overflow */
+#define EMFILE		24	/* Too many open files */
+#define ENOTTY		25	/* Not a typewriter */
+#define ETXTBSY		26	/* Text file busy */
+#define EFBIG		27	/* File too large */
+#define ENOSPC		28	/* No space left on device */
+#define ESPIPE		29	/* Illegal seek */
+```
 
+3. 关于错误码的处理函数 (`strerror`、`perror`)
 
+```c
+// 错误码所在的头文件，里面定义了一个全局变量 errno 储存错误码
+#include <errno.h>
+int errno;
 
+// 将错误码对应的错误信息转换处理
+#include <string.h>
+char *strerror(int errnum);
+/*
+	功能：将错误码转换为错误信息描述
+	参数：错误码
+	返回值：错误信息字符串描述
+*/
 
-# 三、多进程
+// 只打印错误码对应的错误信息的函数
+#include <stdio.h>
+void perror(const char *s);
+/*
+	功能：输出当前错误码对应的错误信息
+	参数：提示符号，会原样打印出来，并且会在提示数据后面加上冒号，并输出完后，自动换行
+	返回值：无
+*/
+```
 
-## 3.1 多进程实现
+```c
+#include "stdio.h"	// 标准的输入输出头文件
+#include <errno.h>	// 错误码所在的头文件
+#include <string.h>	// 字符串处理的头文件
+
+int main(int argc, const char *argv[]) {
+
+	// 1、定义一个文件指针
+	FILE *fp = NULL;
+
+	fp = fopen("./file.txt", "r");
+	if(fp == NULL) {
+		// printf("fopen error: %d, errmsg:%s\n", errno, strerror(errno));	// 打印错误信息，并输出错误码 2
+		perror("fopen error");	// 打印当前错误码对应的错误信息
+		// output：fopen error: ...
+		return -1;
+	}
+	printf("fopen success\n");
+
+	// 2、关闭文件
+	fclose(fp);
+
+	return 0;
+}
+```
+
+### 2.2.6 单字符读写：fputc/fgetc
+
+```c
+// 函数所在头文件
+#include <stdio.h>
+
+fgetc(FILE *stream);
+/*
+	功能：从指定文件中读取一个字符数据，并以无符号整数的形式返回
+	参数：文件指针
+	返回值：成功返回读取的字符对应的无符号整数，失败返回 EOF 并置位错误码
+*/
+
+int fputc(int c, FILE *stream);
+/*
+	功能：将指定的字符 c 写入到 stream 指向的文件中
+	参数 1：要写入的字符对应的无符号整数
+	参数 2：文件指针
+	返回值：成功返回写入字符对的无符号整数，失败返回 EOF 并置位错误码
+*/
+```
+
+**EOF 其实就是 -1**
+
+```c
+#include <stdio.h>
+
+int main(int argc, const char *argv[]) {
+    // 打开文件
+    FILE *fp = NULL;
+    // 以只写的方式打开文件
+    if ((fp = fopen("./file.txt", "w")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 使用程序对文件进行读写操作（单个字符进行操作）
+    // 本次操作的结果是在外部文件中显示 Hello，说明每写入一次，文件光标都会向后偏移
+    fputc('H', fp);
+    fputc('e', fp);
+    fputc('l', fp);
+    fputc('l', fp);
+    fputc('o', fp);
+
+    // 能否从该处读取数据？为什么？
+    // 不可以，文件是只写的且光标此时在文件结尾处，没有数据可以被读取
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+
+    // 以只读的方式打开文件
+    if ((fp = fopen("./file.txt", "r")) == NULL) {
+        perror("open error");
+        return -1;
+    }
+
+    char ch = 0; // 字符的搬运工，将文件的字符搬运到终端
+    while ((ch = fgetc(fp)) != EOF) {
+        putchar(ch);
+    }
+    puts("");
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+    return 0;
+}
+```
+
+练习：使用 `fgetc` 和 `fputc` 完成两个文件的复制工作，实现指令 `cp` 的功能：`cp srcfile destfile`
+
+```c
+/*
+    目的：利用 fgetc 跟 fputc 实现文件的复制粘贴
+*/
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    // 声明文件指针
+    FILE *src = NULL, *dst = NULL;
+
+    // 以只读方式打开资源文件
+    if ((src = fopen("./src.txt", "r")) == NULL) {
+        perror("Failed to open source file");
+        return -1;
+    }
+
+    // 以只写方式打开目标文件
+    if ((dst = fopen("./dst.txt", "w")) == NULL) {
+        perror("Failed to open destination file");
+        return -1;
+    }
+
+    // 用于接收资源文件字符的变量
+    char ch = -1;
+
+    // 将资源文件中所有字符依次输出到目标文件中
+    while ((ch = fgetc(src)) != EOF) fputc(ch, dst);
+
+    // 关闭资源文件
+    fclose(src);
+    src = NULL;
+
+    // 关闭目标文件
+    fclose(dst);
+    dst = NULL;
+    return 0;
+}
+```
+
+### 2.2.7 字符串读写：fgets/fputs
+
+```c
+// 函数所在头文件
+#include <stdio.h>
+
+int fputs(const char *s, FILE *stream);
+/*
+	功能：将指定的字符串，写入到指定的文件中
+	参数 1：要被写入的字符串
+	参数 2：文件指针
+	返回值：成功返回本次写入字符的个数，失败返回 EOF
+*/
+
+char *fgets(char *s, int size, FILE *stream);
+/*
+	功能：从 stream 指向的文件中最多读取 size - 1 个字符到 s 容器中，遇到回车或文件结束，会结束一次读取，并且会将回车放入容器，最后自动加上一个字符串结束标识 '\0'
+	参数 1：字符数组容器起始地址
+	参数 2：要读取的字符个数，最多读取 size - 1 个字符
+	参数 3：文件指针
+	返回值：成功返回容器 s 的起始地址，失败返回 NULL
+*/
+```
+
+```c
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, const char * argv[]) {
+    // 打开文件
+    FILE *fp = NULL;
+    if ((fp = fopen("./file.txt", "w")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 向文件中写入多个字符串
+    char wbuf[128];         // 定义一个字符数组
+    while (1) {
+        fgets(wbuf, sizeof(wbuf), stdin);   // 从终端输入一个字符串
+        // 终端输入的时候会把 quit 后面的换行一起读到字符数组 wbuf 里面
+        if (!strcmp(wbuf, "quit\n")) break;
+        fputs(wbuf, fp);    // 将上述字符串写入文件中
+    }
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+    return 0;
+}
+```
+
+练习：使用 `fgets` 和 `fputs` 完成两个文件的复制。
+
+```c
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    // 声明文件指针
+    FILE *src = NULL, *dst = NULL;
+
+    // 以只写的方式打开资源文件
+    if ((src = fopen("./src.txt", "r")) == NULL) {
+        perror("Failed to open source file");
+        return -1;
+    }
+
+    // 以只读的方式打开目标文件
+    if ((dst = fopen("./dst.txt", "w")) == NULL) {
+        perror("Failed to open destination file");
+        return -1;
+    }
+
+    // 将资源文件中的字符串依次读入到目标文件中
+    char buf[1024];
+    while (fgets(buf, sizeof(buf), src) != NULL)
+        fputs(buf, dst);
+
+    // 关闭资源文件
+    fclose(src);
+    src = NULL;
+
+    // 关闭目标文件
+    fclose(dst);
+    dst = NULL;
+    return 0;
+}
+```
+
+### 2.2.8 关于标准 IO 的缓冲区问题
+
+1. 缓冲区分为三种
+
+   - 行缓存：和终端文件相关的缓冲区叫做行缓存，行缓冲区的大小为 $1024$ 字节，对应的文件指针：`stdin`、`stdout`。
+   - 全缓存：和外界文件相关的缓冲区叫做全缓存，全缓冲区的大小为 $4096$ 字节，对应的文件指针：`fp`。
+   - 不缓存：和标准出错相关的缓冲区叫不缓存，不缓存的大小为 $0$ 字节，对应的文件指针：`stderr`。
+
+```c
+// code here
+```
+
+效果图：
+<!-- img -->
+
+2. 缓冲区的刷新时机
+
+缓冲区刷新函数：`fflush`。
+
+```c
+#include <stdio.h>
+
+int fflush(FILE *stream);
+/*
+功能：刷新给定的文件指针对应的缓冲区
+参数：文件指针
+返回值：成功返回 0，失败返回 EOF 并置位错误码
+*/
+```
+
+行缓存刷新时机
+
+```c
+// code here
+```
+
+全缓存刷新时机
+
+```c
+// code here
+```
+
+对于不缓存的刷新时机，只要放入数据，立马进行刷新
+
+```c
+// code here
+```
+
+### 2.2.9 格式化读写：fprintf/fscanf
+
+```c
+#include <stdio.h>
+
+int fprintf(FILE *stream, const char *format, ...);
+/*
+	功能：向指定的文件中输出一个格式串
+	参数 1：文件指针
+	参数 2：格式串，可以包含格式控制符，%d (整数)、%s (字符串)、%f (小数)、%lf (小数)
+	参数 3：可变参数，输出项列表，参数个数由参数 2 中的格式控制符的个数决定
+	返回值：成功返回输出的字符个数，失败返回一个负数
+*/
+
+int fscanf(FILE *stream, const char *format, ...);
+/*
+	功能：从指定的文件中以指定的格式读取数据，放入程序中
+	参数 1：文件指针
+	参数 2：格式串，可以包含格式控制符，%d (整数)、%s (字符串)、%f (小数)、%lf (小数)
+	参数 3：可变参数，输入项地址列表，参数个数由参数 2 中的格式控制符的个数决定
+	返回值：成功返回读入的项数，失败返回 EOF 并置位错误码
+*/
+```
+
+```c
+// code here
+```
+
+练习：使用 `fprintf` 跟 `fscanf` 完成注册和登录功能，要求做个小菜单，三个功能，功能 0 是退出；功能 1 是注册；功能 2 是登录，用户输入登录账号和密码后，如果跟文件中匹配，则提示登陆成功，如果不全部匹配，则提示登陆失败；菜单可以循环调用。
+
+```c
+// code here
+```
+
+### 2.2.10 格式串转字符串存入字符数组中：sprintf/snprintf
+
+1. 目前所学的函数中，`printf` 是向终端打印一个格式串，`fprintf` 是向外部文件中打印一个格式串。
+2. 有时候，想要将多个不同数据类型的数据，组成一个字符串放入字符数组中，此时我们就可以使用 `sprintf` 或 `snprintf`。
+
+```c
+#include <stdio.h>
+
+int sprintf(char *str, const char *format, ...);
+/*
+	功能：将指定的格式串转换为字符串，放入字符数组中
+	参数 1：字符数组的起始地址
+	参数 2：格式串，可以包含多个格式控制符
+	参数 3：可变参数
+	返回值：成功返回转换的字符个数，失败返回 EOF
+	对于上述函数而言，用一个小的容器去存储一个大的转换后的字符时，会出现指针越界的段错误，为了安全起见，引入了snprintf
+*/
+
+int snprintf(char *str, size_t size, const char *format, ...);
+/*
+	功能：将格式串中最多 size - 1 个字符转换为字符串，存放到字符数组中
+	参数 1：字符数组的起始地址
+	参数 2：要转换的字符个数，最多为 size - 1
+	参数 3：格式串，可以包含多个格式控制符
+	参数 4：可变参数
+	返回值：如果转换的字符小于 size 时，返回值就是成功转换字符的个数，如果大于 size 则只转换 size - 1 个字符，返回值就是 size，失败返回 EOF
+*/
+```
+
+```c
+// code here
+```
+
+### 2.2.11 模块化读写：fread/fwrite
+
+```c
+#include <stdio.h>
+
+size_t fread(void *ptr, size_t size, size_t nmemb, FILE *stream);
+/*
+	功能：从 stream 指向的文件中，读取 nmemb 项数据，每一项的大小为 size，将整个结果放入 ptr 指向的容器中
+	参数 1：容器指针，是一个 void* 类型，表示可以存储任意类型的数据
+	参数 2：要读取数据每一项的大小
+	参数 3：要读取数据的项数
+	参数 4：文件指针
+	返回值：成功返回 nmemb，就是成功读取的项数，失败返回小于项数的值，或者是 0
+*/
+
+size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
+/*
+	功能：向 stream 指向的文件中写入 nmemb 项数据，每一项的大小为 size，数据的起始地址为 ptr
+	参数 1：要写入数据的起始地址
+	参数 2：每一项的大小
+	参数 3：要写入的总项数
+	参数 4：文件指针
+	返回值：成功返回写入的项数，失败返回小于项数的值，或者是 0
+*/
+```
+
+1. 字符串的读写
+
+```c
+// code here
+```
+
+2. 整数的读写
+
+```c
+// code here
+```
+
+3. 结构体数据的读写
+
+```c
+// code here
+```
+
+### 2.2.12 关于文件光标：fseek/ftell/rewind
+
+```c
+int fseek(FILE *stream, long offset, int whence);
+/*
+	功能：移动文件光标位置，将光标从指定位置处进行前后偏移
+	参数 1：文件指针
+	参数 2：偏移量
+		> 0：表示从指定位置向后偏移 n 个字节
+		< 0：表示从指定位置向前偏移 n 个字节
+		= 0：在指定位置处不偏移
+	参数3：偏移的起始位置
+		SEEK_SET：文件起始位置
+		SEEK_CUR：文件指针当前位置
+		SEEK_END：文件结束位置
+	返回值：成功返回 0，失败返回 -1 并置位错误码
+*/
+long ftell(FILE *stream);
+/*
+功能：获取文件指针当前的偏移量
+参数：文件指针
+返回值：成功返回文件指针所在的位置，失败返回 -1 并置位错误码
+*/
+
+//eg:
+fseek(fp, 0, SEEK_END);		//将光标定位在结尾
+ftell(fp);	//该函数的返回值，就是文件大小
+
+void rewind(FILE *stream);
+/*
+功能：将文件光标定位在开头：fseek(fp, 0, SEEK_SET);
+参数：文件指针
+返回值：无
+*/
+```
+
+```c
+// code here
+```
+
+### 2.2.13 补充知识
+
+1. 关于追代码工具 ctags 的使用
+   - 安装 ctags：`sudo yum install ctags`
+   - 进入 `/usr/include` 目录下，执行 `sudo ctags -R` 指令
+   - 该目录下会多出一个 `tags` 的索引文件
+   - 追相关内容的指令：`vi -t 内容`
+     - 继续像后缀内容：`ctrl + ]`
+     - 退出追代码工具：底行模式下输入 `q`，回车
+2. vscode 中关于自定义片段的设置
+   - 在vscode中使用组合键：`ctrl + shift + p` 调出控制面板
+   - 输入 `user snippets` 回车
+   - 输入自定义片段文件名称，打开自定义文件
+   - 输入以下程序
+	```json
+	"Simple C++ Program": {
+		"prefix": "main",
+		"body": [
+			"#include<iostream>",
+			"using namespace std;",
+			"int main(int argc, const char *argv[])",
+			"{",
+			"	$1",
+			"	return 0;",
+			"}"
+		],
+		"description": "Simple C++ program template"
+	}
+	```
+3. 一个头文件中可以包含多个头文件内容
+   - 创建一个头文件，例如 `myhead.h`
+   - 将能用到的所有头文件都放入该文件中
+   - 将 `myhead.h` 文件，移动到根目录下的 `usr` 目录中的 `include` 目录下：`sudo mv myhead.h /usr/include`
+   - 常用的头文件
+	```cpp
+	#include <iostream>	// C++标准输入输出流
+	#include <string>	// C++字符串类对象
+	#include <iomanip>	// C++中的格式化输入输出
+	#include <stdio.h>	// C语言的输入输出头文件
+	#include <math.h>	// C语言的数据函数头文件
+	#include <string.h>	// C语言字符串处理
+	#include <stdlib.h> // C语言库头文件
+	```
+   - 重新设置用户的自定义片段
+	```json
+	"Simple C++ Program": {
+		"prefix": "main",
+		"body": [
+			"#include <myhead.h>",
+			"int main(int argc, const char *argv[])",
+			"{",
+			"	$1",
+			"	return 0;",
+			"}"
+		],
+		"description": "Simple C++ program template"
+	}
+	```
+
+## 2.3 文件 IO
+
+定义：文件 IO 就是通过系统调用（内核提供的函数）实现，只要使用的文件 IO 接口，那么进程就会从用户空间向内核空间进行一次切换。标准 IO 的实现中，也是在内部调用了文件 IO 操作。该操作效率较低，因为没有缓冲区的概念。文件 IO 常用的操作：`open`、`close`、`read`、`write`、`lseek`。
+
+### 2.3.1 文件描述符
+
+1. 文件描述符的本质是一个大于等于 0 的整数，在使用 `open` 函数打开文件时，就会产生一个用于操作文件的句柄，这就是文件描述符。
+2. 在一个进程中，能够打开的文件描述符是有限制的，一般是 $1024$ 个，范围在 $[0,1023]$，可以通过指令 `ulimit -a` 进行查看，如果要更改这个限制，可以通过指令 `ulimit -n` 数字，进行更改
+3. 文件描述符的使用原则一般是最小未分配原则。
+4. 特殊的文件描述符：$0$、$1$、$2$，这三个文件描述符在一个进程启动时就默认被打开了，分别表示标准输入、标准输出、标准错误。
+
+```cpp
+#include <iostream>
+#include <stdio.h>
+using namespace std;
+
+int main(int argc, const char *argv[]) {
+	// 分别输出标准输入、标准输出、标准出错文件指针对应的文件描述符
+	printf("stdin->_fileno = %d\n", stdin->_fileno);	// 0
+	printf("stdout->_fileno = %d\n", stdout->_fileno);	// 1
+	printf("stderr->_fileno = %d\n", stderr->_fileno);	// 2
+	return 0;
+}
+```
+
+输出
+
+```
+stdin->_fileno = 0
+stdout->_fileno = 1
+stderr->_fileno = 2
+```
+
+### 2.3.2 打开文件：open
+
+```c
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+int open(const char *pathname, int flags);
+int open(const char *pathname, int flags, mode_t mode);
+/*
+参数 1：要打开的文件文件路径
+参数 2：打开模式
+	以下三种方式必须选其一：O_RDONLY(只读)、O_WRONLY（只写）、O_RDWR（读写）
+	以下的打开方式可以有零个或多个，跟上述的方式一起用位或运算连接到一起
+	O_CREAT：用于创建文件，如果文件不存在，则创建文件，如果文件存在，则打开文件，如果 flag 中包含了该模式，则函数的第三个参数必须要加上
+	O_APPEND：以追加的形式打开文件，光标定位在结尾
+	O_TRUNC：清空文件
+	O_EXCL：常跟 O_CREAT 一起使用，确保本次要创建一个新文件，如果文件已经存在，则 open 函数报错
+	eg:
+		"w": O_WRONLY | O_CREAT | O_TRUNC
+		"w+": O_RDWR | O_CREAT | O_TRUNC
+		"r": O_RDONLY
+		"r+": O_RDWR
+		"a": O_WRONLY | O_CREAT | O_APPEND
+		"a+": O_RDWR | O_CREAT | O_APPEND
+参数 3：如果参数 2 中的 flag 中有 O_CREAT 时，表示创建新文件，参数 3 就必须给定，表示新创建的文件的权限
+	如果当前参数给定了创建的文件权限，最终的结果也不一定是参数 3 的值，系统会用你给定的参数 3 的值，与系统的 umask 取反的值进行位与运算后，才是最终创建文件的权限（mode & ~umask）
+	当前终端的 umask 的值，可以通过指令 umask 来查看，一般默认为为 0022，表示当前进程所在的组中对该文件没有写权限，其他用户对该文件也没有写权限
+	当前终端的 umask 的值是可以更改的，通过指令：umask 数字进行更改，这种方式只对当前终端有效
+	普通文件的权限一般为：0644，表示当前用户没有可执行权限，当前组中其他用户和其他组中的用户都只有读权限
+	目录文件的权限一般为：0755，表示当前用户具有可读、可写、可执行，当前组中其他用户和其他组中的用户都没有可写权限
+	注意：如果不给权限，那么当前创建的权限会是一个随机值
+返回值：成功返回打开文件的文件描述符，失败返回 -1 并置位错误码
+*/
+```
+
+### 2.3.3
+
+```c
+#include <unistd.h>
+
+int close(int fd);
+/*
+功能：关闭文件描述符对应的文件
+参数：文件描述符
+返回值：成功返回 0，失败返回 -1 并置位错误码
+*/
+```
+
+```cpp
+// code here
+```
+
+### 2.3.4 读写操作：read/write
+
+```c
+#include <unistd.h>
+
+ssize_t read(int fd, void *buf, size_t count);
+/*
+功能：从 fd 文件描述符引用的文件中读取 count 的字符放入 buf 对应的容器中
+参数 1：已经打开文件对应的文件描述符
+参数 2：容器的起始地址
+参数 3：要读取的字符个数
+返回值：成功返回读取的字符个数，这个个数可能会小于 count 的值，失败返回 -1 并置位错误码
+*/
+
+#include <unistd.h>
+
+ssize_t write(int fd, const void *buf, size_t count);
+/*
+功能：将 buf 容器中的 count 个数据，写入到 fd 引用的文件中
+参数 1：已经打开的文件的文件描述符
+参数 2：要写入的数据的起始地址
+参数 3：要写入数据的个数
+返回值：成功返回写入的字符个数，这个个数可能小于 count，失败返回 -1 并置位错误码
+*/
+```
+
+```cpp
+// code here
+```
+
+### 2.3.5 关于光标的操作：lseek
+
+```c
+#include <sys/types.h>
+#include <unistd.h>
+
+off_t lseek(int fd, off_t offset, int whence);
+/*
+功能：移动光标的位置，并返回光标现在所在的位置
+参数 1：文件描述符
+参数 2：偏移量
+	> 0：表示从指定位置向后偏移 offset 个字节
+	< 0：表示从指定位置向前偏移 offset 个字节
+	= 0：在指定位置处不偏移
+参数3：偏移的起始位置
+	SEEK_SET：文件起始位置
+	SEEK_CUR：文件指针当前位置
+	SEEK_END：文件结束位置
+返回值：光标现在所在的位置
+注意：lseek = fseek + ftell
+*/
+```
+
+```cpp
+// code here
+```
+
+练习：将一个 bmp 格式的图片信息读取出来，并将该图片的相关内容（颜色）进行更改。关于 bmp 图像格式可以参考：[bmp图片](https://upimg.baike.so.com/doc/5386615-5623077.html)。
+
+如何将 Windows 下的文件，复制到 Linux 系统的 Centos 下？
+1. 在 Windows 下调出 cmd 窗口
+2. 输入指令：`scp 要拷贝的文件路径 Linux下的用户名@ip地址:Linux下存放的地址路径`
+	eg: `scp C:\Users\鹏程万里\Desktop\wukong.bmp zpp@192.168.31.88:/home/zpp/IO/day2`
+
+```cpp
+// code here
+```
+
+课后练习：使用文件 IO 来完成两个文件的拷贝，可以完成两个图像的拷贝工作
+
+# 三、多进程编程
+
+## 3.1 多进程理论基础
+
+### 3.1.1 引入目的
+
+1. 实现 **多任务并发执行** 的一种途径
+2. 可以实现数据在多个进程之间进行通信，共同处理整个程序的相关数据，提供工作效率
+
+### 3.1.2 多进程相关概念
+
+1. **进程是程序的一次执行过程**，有一定的生命周期，包含了创建态、就绪态、执行态、挂起态、死亡态。
+2. **进程是计算机资源分配的基本单位**，系统会给每个进程分配 $0-4G$ 的虚拟内存，其中 $0-3G$ 是用户空间， $3-4G$ 是内核空间。
+   - 其中多个进程中 $0-3G$ 的用户空间是相互独立的，但是， $3-4G$ 的内核空间是相互共享的。
+   - 用户空间细分为：栈区、堆区、静态区。
+3. 进程的调度机制：时间片轮询上下文切换机制。
+
+![img7](./img/img7.png#pic_center)
+
+4. 并发和并行的区别：
+   - 并发：针对于单核 CPU 系统在处理多个任务时，使用相关的调度机制，实现多个任务进行细化时间片轮询时，在宏观上感觉是多个任务同时执行的操作，同一时刻，只有一个任务在被 CPU 处理。
+   - 并行：是针对于多核 CPU 而言，处理多个任务时，同一时间，每个 CPU 处理的任务之间是并行的，实现的是真正意义上多个任务同时执行的。
+
+### 3.1.3 进程的内存管理（重点了解）
+
+![img8](./img/img8.png#pic_center)
+
+1. 物理内存：内存条上（硬件上）真正存在的存储空间。
+2. 虚拟内存：程序运行后，通过内存映射单元，将物理内存映射出 $4G$ 的虚拟内存，供进程使用。
+
+### 3.1.4 进程和程序的区别
+
+- 进程是动态的，进程是程序的一次执行过程，是有生命周期的，进程会被分配 $0-3G$ 的用户空间，进程是在内存上存着的。
+- 程序是静态的，没有所谓的生命周期，程序存储在磁盘设备上的二进制文件
+	hello.cpp $\to$ g++ $\to$ hello
+
+### 3.1.5 进程的种类
+
+进程一共有三种：交互进程、批处理进程、守护进程
+
+1. 交互进程：它是由 shell 控制，可以直接和用户进行交互的，例如文本编辑器。
+2. 批处理进程：内部维护了一个队列，被放入该队列中的进程，会被统一处理。例如 g++ 编译器的一步到位的编译。
+3. 守护进程：脱离了终端而存在，随着系统的启动而运行，随着系统的退出而停止。例如：操作系统的服务进程。
+
+### 3.1.6 进程 PID 的概念
+
+1. PID (Process ID)：进程号，进程号是一个大于等于 $0$ 的整数值，是进程的唯一标识，不可以重复。
+2. PPID (Parent Process ID)：父进程号，系统中允许的每个进程，都是拷贝父进程资源得到的。
+3. 在 Linux 系统中的 `/proc` 目录下的数字命名的目录其实都是一个进程。
+
+<!-- img -->
+
+### 3.1.7 特殊的进程
+
+1. $0$ 号进程 (idel)：它是由 Linux 操作系统启动后运行的第一个进程，也叫空闲进程，当没有其他进程运行时，会运行该进程。他也是 $1$ 号进程和 $2$ 号进程的父进程。
+2. $1$ 号进程 (init)：他是由 $0$ 号进程创建出来的，这个进程会完成一些硬件的必要初始化工作，除此之外，还会收养孤儿进程。
+3. $2$ 号进程 (kthreadd)：也称调度进程，这个进程也是由 $0$ 号进程创建出来的，主要完成任务调度问题。
+4. 孤儿进程：当前进程还正在运行，其父进程已经退出了。
+	说明：每个进程退出后，其分配的系统资源应该由其父进程进行回收，否则会造成资源的浪费。
+5. 僵尸进程：当前进程已经退出了，但是其父进程没有为其回收资源。
+
+### 3.1.8 有关进程操作的指令
+
+1. `ps` 指令：能够查看当前运行的进程相关属性。
+
+`ps -ef`：能够显示进程之间的关系。
+```
+// code here
+
+UID：用户 ID 号
+PID：进程号
+PPID：父进程号
+C：用处不大
+STIME：开始运行的时间
+TTY：如果是问号表示这个进程不依赖于终端而存在
+CDM：名称
+```
+
+`ps -ajx`：能够显示当前进程的状态
+
+```
+// code here
+
+PGID：进程组 ID
+SID：会话组 ID
+STAT：进程的状态
+```
+
+`ps -aux`：可以查看当前进程对 CPU 和内存的占用率
+
+```
+// code here
+
+%CPU：CPU 占用率
+%MEM：内存占用率
+```
+
+2. `top`：动态查看进程的相关属性
+
+```
+// code here
+```
+
+3. `kill` 指令：发送信号的指令
+	使用方式：`kill -信号号 进程号`
+	可以通过指令：`kill -l` 查看能够发送的信号有哪些
+
+```
+1) SIGHUP	2) SIGINT	3) SIGQUIT	4) SIGILL	5) SIGTRAP
+6) SIGABRT	7) SIGBUS	8) SIGFPE	9) SIGKILL	10) SIGUSR1
+11) SIGSEGV	12) SIGUSR2	13) SIGPIPE	14) SIGALRM	15) SIGTERM
+16) SIGSTKFLT	17) SIGCHLD	18) SIGCONT	19) SIGSTOP	20) SIGTSTP
+21) SIGTTIN	22) SIGTTOU	23) SIGURG	24) SIGXCPU	25) SIGXFSZ
+26) SIGVTALRM	27) SIGPROF	28) SIGWINCH	29) SIGIO	30) SIGPWR
+31) SIGSYS	34) SIGRTMIN	35) SIGRTMIN+1	36) SIGRTMIN+2	37) SIGRTMIN+3
+38) SIGRTMIN+4	39) SIGRTMIN+5	40) SIGRTMIN+6	41) SIGRTMIN+7	42) SIGRTMIN+8
+43) SIGRTMIN+9	44) SIGRTMIN+10	45) SIGRTMIN+11	46) SIGRTMIN+12	47) SIGRTMIN+13
+48) SIGRTMIN+14	49) SIGRTMIN+15	50) SIGRTMAX-14	51) SIGRTMAX-13	52) SIGRTMAX-12
+53) SIGRTMAX-11	54) SIGRTMAX-10	55) SIGRTMAX-9	56) SIGRTMAX-8	57) SIGRTMAX-7
+58) SIGRTMAX-6	59) SIGRTMAX-5	60) SIGRTMAX-4	61) SIGRTMAX-3	62) SIGRTMAX-2
+63) SIGRTMAX-1	64) SIGRTMAX
+
+1、一共可以发射 62 个信号，前 32 个是稳定信号，后面是不稳定信号
+2、常用的信号
+SIGHUP：当进程所在的终端被关闭后，终端会给运行在当前终端的每个进程发送该信号，默认结束进程
+SIGINT：中断信号，当用户键入 ctrl + c 时发射出来
+SIGQUIT：退出信号，当用户键入 ctrl + / 是发送，退出进程
+SIGKILL：杀死指定的进程
+SIGSEGV：当指针出现越界访问时，会发射，表示段错误
+SIGPIPE：当管道破裂时会发送该信号
+SIGALRM：当定时器超时后，会发送该信号
+SIGSTOP：暂停进程，当用户键入 ctrl+z 时发射
+SIGTSTP：也是暂停进程
+SIGTSTP、SIGUSR2：留给用户自定义的信号，没有默认操作
+SIGCHLD：当子进程退出后，会向父进程发送该信号
+3、有两个特殊信号：SIGKILL 和 SIGSTOP，这两个信号既不能被捕获，也不能被忽略
+```
+
+4. `pidof`：查看进程的进程号
+	使用方式：`pidof 进程名`
+
+<!-- img -->
+
+### 3.1.9 进程状态的切换
+
+1. 可以通过 `man ps` 进行查看进程的状态
+
+```
+进程主状态：
+	D	uninterruptible sleep (usually IO)	不可中断的休眠态，通常是IO 操作
+	R	running or runnable (on run queue)	运行态
+	S	interruptible sleep (waiting for an event to complete)	可中断的休眠态
+	T	stopped by job control signal	停止态
+	t	stopped by debugger during the tracing	调试时的停止态
+	W	paging (not valid since the 2.6.xx kernel)	已经弃用的状态
+	X	dead (should never be seen)	死亡态
+	Z	defunct ("zombie") process, terminated but not reaped by its parent	僵尸态
+附加态：
+	<	high-priority (not nice to other users)	高优先级进程
+	N	low-priority (nice to other users)	低优先级进程
+	L	has pages locked into memory (for real-time and custom IO)	锁在内存中的进程
+	s	is a session leader	会话组组长
+	l	is multi-threaded (using CLONE_THREAD, like NPTL pthreads do)	包含多线程的进程
+	+	is in the foreground process group	前台运行的进程
+```
+
+2. 状态切换的实例
+
+	(1) 如果有停止的进程，可以在终端输入指令：`jobs -l` 查看停止进程的作业号。
+	(2) 通过使用指令：`bg 作业号` 实现将停止的进程进入后台运行状态，如果只有一个停止的进程，输入 bg 不加作业号也可以。
+	(3) 对后台运行的进程，输入 fg 作业号 实现将后台运行的进程切换到前台运行。
+	(4) 直接将可执行程序后台运行：`./可执行程序 &`
+
+<!-- img -->
+
+<!-- img -->
 
 ## 3.2 多进程实现
+
+进程的创建过程，是子进程通过拷贝父进程得到的，新进程的创建直接拷贝父进程的资源，只需改变很少部分的数据即可，保留了父进程的大部分的数据信息（遗传基因），所以这个拷贝过程，系统通过一个函数 `fork` 来自动完成。
+
+### 3.2.1 进程的创建：fork
 
 ## 3.3 进程间通信 IPC
 
