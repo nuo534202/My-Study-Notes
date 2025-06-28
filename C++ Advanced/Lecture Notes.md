@@ -1633,13 +1633,51 @@ int main(int argc, const char * argv[]) {
    - 不缓存：和标准出错相关的缓冲区叫不缓存，不缓存的大小为 $0$ 字节，对应的文件指针：`stderr`。
 
 ```c
-// code here
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+	// 验证行缓存大小为 1024
+    // 输出行缓存大小
+    printf("%d\n", stdout->_IO_buf_end - stdout->_IO_buf_base); // 0
+    printf("%d\n", stdout->_IO_buf_end - stdout->_IO_buf_base); // 1024
+    // 原因：如果缓冲区没有被使用时，求出大小为 0，只有至少被使用了一次后，缓冲区的大小才会被分配
+
+    int num = 0;
+    scanf("%d", &num); // 输入一个整数到 num 变量中
+    // 输出行缓存大小
+    printf("%d\n", stdin->_IO_buf_end - stdin->_IO_buf_base);	// 1024
+
+
+	// 验证全缓存大小为 4096
+	FILE *fp = NULL;
+	if ((fp = fopen("./file.txt", "r")) == NULL) {
+		perror("fopen error");
+		return -1;
+	}
+
+	printf("%d\n", fp->_IO_buf_end - fp->_IO_buf_base);	// 0
+	// 原因：未使用的全缓存大小为 0
+
+	fgetc(fp);	// 从文件中读取一个字符
+	printf("%d\n", fp->_IO_buf_end - fp->_IO_buf_base);	// 4096
+
+	// 关闭文件
+	fclose(fp);
+	fp = NULL;
+
+
+	// 验证不缓存的大小为 0
+	printf("%d\n", stderr->_IO_buf_end - stderr->_IO_buf_base);	// 0
+	// 未使用的不缓存大小为 0
+	perror("error"); // 使用一次不缓存
+	printf("%d\n", stderr->_IO_buf_end - stderr->_IO_buf_base);	// 0
+	// 不缓存大小为 0
+
+    return 0;
+}
 ```
 
-效果图：
-<!-- img -->
-
-2. 缓冲区的刷新时机
+2 . 缓冲区的刷新时机
 
 缓冲区刷新函数：`fflush`。
 
@@ -1648,28 +1686,179 @@ int main(int argc, const char * argv[]) {
 
 int fflush(FILE *stream);
 /*
-功能：刷新给定的文件指针对应的缓冲区
-参数：文件指针
-返回值：成功返回 0，失败返回 EOF 并置位错误码
+	功能：刷新给定的文件指针对应的缓冲区
+	参数：文件指针
+	返回值：成功返回 0，失败返回 EOF 并置位错误码
 */
 ```
 
 行缓存刷新时机
 
 ```c
-// code here
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    // 1. 验证缓冲区如果没有达到刷新时机就不会将数据进行刷新
+    printf("Hello World!"); // 在终端上输出一个 Hello World
+
+    perror("Error"); // 在终端输出错误信息
+    /*
+        Output: Error: Success
+        原因：要输出的 Hello World 被储存在缓存区中，后面的 while (1); 阻塞进程不让进程结束，
+            缓存区没有到刷新时机，所以没有输出 Hello World
+    */
+
+    while (1); // 阻塞不让进程结束
+
+    // 2. 在程序结束时才会刷新缓存区
+
+    return 0;
+}
+```
+
+```c
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    // 3. 遇到换行时会刷新行缓存
+    printf("Hello World\n");
+    while (1); // 阻塞不让进程结束
+    /*
+        Output: Hello World
+    */
+    return 0;
+}
+```
+
+```c
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    // 4. 当输入输出发生切换时，会刷新行缓存
+    int num = 0;
+    printf("Input: ");
+    scanf("%d", &num);
+    /*
+        Output: Input: 
+    */
+
+    // 5. 当关闭行缓存对应的文件指针时，会刷新对应指针（实际上是调用了 fflush 进行刷新）
+    printf("Hello World");
+    fclose(stdout); // 关闭标准输出指针
+    while (1);
+    /*
+        Output: Hello World
+    */
+
+    return 0;
+}
+```
+
+```c
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    // 6. 使用 fflush 函数手动刷新缓冲区时，行缓存会被刷新
+    printf("Hello World");
+    fflush(stdout);
+    while (1);
+    /*
+        Output: Hello World
+    */
+    return 0;
+}
+```
+
+```c
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    // 7. 当缓冲区满了后，会刷新缓冲区
+    // for (int i = 0; i < 1000; i++) putchar('A');
+    // while (1);
+    // // 无输出
+    for (int i = 0; i < 1030; i++) putchar('A');
+    while (1);
+    // 输出 1030 个 A
+    return 0;
+}
 ```
 
 全缓存刷新时机
 
 ```c
-// code here
+#include <stdio.h>
+
+int main(int argc, const char *argv[]) {
+    // 打开一个文件
+    FILE *fp = NULL;
+    if ((fp = fopen("file.txt", "w+")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 1. 当缓冲区刷新时机未到时，不会刷新全缓存
+    fputs("Hello World", fp);
+	while (1);
+	// 无输出
+
+	// 2. 当遇到换行时，不会刷新全缓存
+	fputs("Hello World\n", fp);
+	while (1);
+	// 无输出
+
+	// 3. 当程序结束后，会刷新全缓存
+	fputs("Hello World", fp);
+	while (1);
+	// Output: Hello World
+
+	// 4. 当输入输出发生切换时，会刷新全缓存
+	fputs("Hello World", fp);
+	fgetc(fp);
+	while (1);
+	// Output: Hello World
+
+	// 5. 当关闭缓冲区对应的文件指针时，会刷新全缓存
+	fputs("Hello World", fp);
+	// 关闭文件
+	fclose(fp);
+	fp = NULL;
+	while (1);
+	// Output: Hello World
+
+	// 6. 当手动使用 fflush 手动刷新缓冲区时，会刷新全缓存
+	fputs("Hello World", fp);
+	fflush(fp);
+	while (1);
+	// Output: Hello World
+
+	// 7. 当缓冲区满了后，再向缓冲区存放数据时，会刷新全缓存
+	for (int i = 0; i < 4097; i++) putchar('A');
+	while (1);
+	// 输出 4097 个 A
+
+	// 关闭文件
+	fclose(fp);
+	fp = NULL;
+    return 0;
+}
 ```
 
-对于不缓存的刷新时机，只要放入数据，立马进行刷新
+对于不缓存的刷新时机，只要放入数据，立马进行刷新。
 
 ```c
-// code here
+#include <stdio.h>
+
+int main(int argc, const char *argv[]) {
+    perror("a"); // 向标准出错中放入数据
+	fputs("A", stderr); // 向标准出错缓冲区写入字符串 A
+	while (1); // 阻塞
+	/*
+		Output: a
+				A
+	*/
+    return 0;
+}
 ```
 
 ### 2.2.9 格式化读写：fprintf/fscanf
@@ -1697,13 +1886,228 @@ int fscanf(FILE *stream, const char *format, ...);
 ```
 
 ```c
-// code here
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    // 向标准输出文件中写入数据
+    fprintf(stdout, "%d %lf %s\n", 1, 3.1415926, "Hello World");
+
+    // 从标准输入中读取数据
+    int num;
+    fscanf(stdin, "%d", &num);
+
+    // 输出读入的数据
+    printf("num = %d\n", num);
+
+    FILE *fp = NULL;
+    // 以只写的形式打开外部文件
+    if ((fp = fopen("./file.txt", "w")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 向文件中写入数据
+    fprintf(fp, "%s %d\n", "admin", 123456);
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+
+    // 以只读的形式重新打开文件
+    if ((fp = fopen("./file.txt", "r")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    char usr[30];
+    int pwd = 0;
+    fscanf(fp, "%s %d", usr, &pwd); // 从文件中读取数据
+    printf("%s %d\n", usr, pwd);    // 将读取到的数据输出到命令行
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+
+    return 0;
+}
 ```
 
 练习：使用 `fprintf` 跟 `fscanf` 完成注册和登录功能，要求做个小菜单，三个功能，功能 0 是退出；功能 1 是注册；功能 2 是登录，用户输入登录账号和密码后，如果跟文件中匹配，则提示登陆成功，如果不全部匹配，则提示登陆失败；菜单可以循环调用。
 
 ```c
-// code here
+#include <stdio.h>
+#include <string.h>
+
+// 储存用户信息的结构体
+struct User {
+    char usrName[50], pwd[50], phone[15], sex;
+    int age;
+} users[20];
+
+// 用户总数
+int tot = 0;
+
+/*
+*   功能：展示主菜单，在 main 函数中被调用
+*   参数：无
+*   返回值：void
+*/
+void mainMenu();
+
+/*
+*   功能：创建一个新账号，在 mainMenu 函数中被调用
+*   参数：无
+*   返回值：int
+*       0 表示创建失败
+*       1 表示创建成功
+*/
+int create();
+
+/*
+*   功能：登录账号，在 mainMenu 函数中被调用
+*   参数：无
+*   返回值：int
+*       0 表示登陆失败
+*       1 表示登陆成功
+*/
+int login();
+
+/*
+*   功能：从 data.txt 文件中读取用户数据，在 main 函数中调用
+*   参数：无
+*   返回值：int
+*       -1 代表读取失败
+*       0 代表读入成功
+*/
+int read();
+
+/*
+*   功能：将数据储存到 data.txt 文件中，在 main 函数中调用
+*   参数：无
+*   返回值：int
+*       -1 代表保存失败
+*       0 代表保存成功
+*/
+int save();
+
+int main(int argc, const char * argv[]) {
+    // 读取数据
+    if (read() == -1) {
+        perror("Failed to read data");
+        return -1;
+    }
+
+    // 展示菜单
+    mainMenu();
+
+    // 保存数据
+    if (save() == -1) {
+        perror("Failed to save data");
+        return -1;
+    }
+    return 0;
+}
+
+void mainMenu() {
+    int op;
+    while (1) {
+        printf("Please input an interer (0: exit, 1: register, 2: login): ");
+        fflush(stdout);
+        scanf("%d", &op);
+        if (op == 0) break;
+        else if (op == 1) create();
+        else if (op == 2) login();
+        else puts("Invalid Input");
+        fflush(stdout);
+    }
+}
+
+int create() {
+    if (tot >= 20) {
+        perror("Users Full");
+        return 0;
+    }
+    char usrName[50], pwd[50], phone[15], sex;
+    int age;
+    puts("Please input your information");
+    printf("(Format: userName password phone sex age): ");
+    fflush(stdout);
+    int flag = scanf("%s %s %s %c %d", usrName, pwd, phone, &sex, &age);
+    fflush(stdout);
+    if (flag < 5) {
+        perror("Input Failed");
+        return 0;
+    }
+    strcpy(users[tot].usrName, usrName);
+    strcpy(users[tot].pwd, pwd);
+    strcpy(users[tot].phone, phone);
+    users[tot].sex = sex, users[tot].age = age;
+    tot++;
+    return 1;
+}
+
+int login() {
+    char usrName[50], pwd[50];
+    puts("Please input your User Name and PassWord");
+    printf("(Format: userName password): ");
+    fflush(stdout);
+    int flag = scanf("%s %s", usrName, pwd);
+    if (flag < 2) {
+        perror("Invalid Input");
+        return 0;
+    }
+    for (int i = 0; i < tot; i++) {
+        if (!strcmp(users[i].usrName, usrName) && !strcmp(users[i].pwd, pwd)) {
+            puts("Login Success");
+            fflush(stdout);
+            return 1;
+        }
+    }
+    perror("User Not Found or Password Not match");
+    return 0;
+}
+
+int read() {
+    FILE *fp = NULL;
+    if ((fp = fopen("./data.txt", "r")) == NULL) {
+        perror("Open Error");
+        return -1;
+    }
+
+    while (fscanf(fp, "%s %s %s %c %d",
+            users[tot].usrName,
+            users[tot].pwd,
+            users[tot].phone,
+            &users[tot].sex,
+            &users[tot].age
+        ) != EOF
+    ) tot++;
+
+    fclose(fp);
+    fp = NULL;
+    return 0;
+}
+
+int save() {
+    FILE *fp = NULL;
+    if ((fp = fopen("./data.txt", "w")) == NULL) {
+        perror("Open Error");
+        return -1;
+    }
+
+    for (int i = 0; i < tot; i++)
+        fprintf(fp, "%s %s %s %c %d\n",
+            users[i].usrName,
+            users[i].pwd,
+            users[i].phone,
+            users[i].sex,
+            users[i].age
+        );
+    
+    fclose(fp);
+    fp = NULL;
+    return 0;
+} 
 ```
 
 ### 2.2.10 格式串转字符串存入字符数组中：sprintf/snprintf
@@ -1721,7 +2125,8 @@ int sprintf(char *str, const char *format, ...);
 	参数 2：格式串，可以包含多个格式控制符
 	参数 3：可变参数
 	返回值：成功返回转换的字符个数，失败返回 EOF
-	对于上述函数而言，用一个小的容器去存储一个大的转换后的字符时，会出现指针越界的段错误，为了安全起见，引入了snprintf
+
+	对于上述函数而言，用一个小的容器去存储一个大的转换后的字符时，可能会出现指针越界的段错误，为了安全起见，引入了 snprintf
 */
 
 int snprintf(char *str, size_t size, const char *format, ...);
@@ -1736,7 +2141,20 @@ int snprintf(char *str, size_t size, const char *format, ...);
 ```
 
 ```c
-// code here
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    char buf[128];
+    sprintf(buf, "%s %d %lf", "name", 20, 99.5);
+    printf("%s\n", buf);
+    // Output: name 20 99.500000
+    // 存在的问题：转换之后的字符串长度超过 buf，可能会出现段错误
+
+    snprintf(buf, sizeof(buf), "%s %d %lf", "name", 20, 99.5);
+    printf("%s\n", buf);
+    // Output: name 20 99.500000
+    return 0;
+}
 ```
 
 ### 2.2.11 模块化读写：fread/fwrite
@@ -1768,19 +2186,155 @@ size_t fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream);
 1. 字符串的读写
 
 ```c
-// code here
+#include <stdio.h>
+#include <string.h>
+
+int main(int argc, const char * argv[]) {
+
+    // 定义文件指针，以只写的形式打开文件
+    FILE *fp = NULL;
+    if ((fp = fopen("./file.txt", "w")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 定义要存储的字符串
+    char wbuf[128];
+    while (1) {
+        printf("Please Input: ");
+        fgets(wbuf, sizeof(wbuf), stdin);
+        wbuf[strlen(wbuf) - 1] = '\0'; // 将换行换成字符串结束标志
+
+        // 判断输入的是否为 quit
+        if (!strcmp(wbuf, "quit")) break;
+
+        fwrite(wbuf, strlen(wbuf), 1, fp);
+        fwrite("\n", 1, 1, fp);
+        fflush(fp); // 刷新缓冲区
+        puts("Input Success");
+    }
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+
+    if ((fp = fopen("./file.txt", "r")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    char rbuf[10];
+    int res = fread(rbuf, 1, sizeof(rbuf), fp); // 从文件中读取字符串
+    fwrite(rbuf, 1, res, stdout); // 将读入的字符串输出到终端
+    /*
+        Output: Hello
+                Worl
+        原因：Hello 后面有换行符 \n，所以第二行只读入了四个字符
+    */
+    return 0;
+}
 ```
 
 2. 整数的读写
 
 ```c
-// code here
+#include <stdio.h>
+
+int main(int argc, const char * argv[]) {
+    FILE *fp = NULL;
+
+    // 以只写的方式打开文件
+    if ((fp = fopen("./file.txt", "w")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+    
+    // 定义写入文件中的数据
+    int num = 16;
+    fwrite(&num, sizeof(num), 1, fp);
+    // 该整数在文件中并不是以整数的形式储存，而是以二进制的形式存储
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+
+    // 以只读的形式再次打开文件
+    if ((fp = fopen("./file.txt", "r")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 定义接收数据的变量
+    int key = 0;
+    fread(&key, sizeof(key), 1, fp);
+
+    printf("%d\n", key);
+    
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+    return 0;
+}
 ```
 
 3. 结构体数据的读写
 
 ```c
-// code here
+#include <stdio.h>
+
+// 定义学生结构体
+typedef struct {
+    char name[20];
+    int age;
+    double gpa;
+} Student;
+
+int main(int argc, const char * argv[]) {
+    FILE *fp = NULL;
+
+    // 以只写的方式打开文件
+    if ((fp = fopen("./file.txt", "w")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 定义三个学生
+    Student s[3] = {
+        { "Alice", 10, 3.5 },
+        { "Bob", 20, 3.8 },
+        { "Charlie", 30, 4.0 }
+    };
+
+    // 将学生信息写入文件
+    fwrite(s, sizeof(Student), 3, fp);
+    
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+
+    // 以只读的形式再次打开文件
+    if ((fp = fopen("./file.txt", "r")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 从文件中读取学生信息
+    Student tmp;
+    for (int i = 0; i < 3; i++) {
+        fread(&tmp, sizeof(Student), 1, fp);
+        printf("name: %s, age: %d, gpa: %lf\n", tmp.name, tmp.age, tmp.gpa);
+    }
+    /*
+        Output: name: Alice, age: 10, gpa: 3.500000
+                name: Bob, age: 20, gpa: 3.800000
+                name: Charlie, age: 30, gpa: 4.000000
+    */
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+    return 0;
+}
 ```
 
 ### 2.2.12 关于文件光标：fseek/ftell/rewind
@@ -1800,27 +2354,81 @@ int fseek(FILE *stream, long offset, int whence);
 		SEEK_END：文件结束位置
 	返回值：成功返回 0，失败返回 -1 并置位错误码
 */
+
 long ftell(FILE *stream);
 /*
-功能：获取文件指针当前的偏移量
-参数：文件指针
-返回值：成功返回文件指针所在的位置，失败返回 -1 并置位错误码
+    功能：获取文件指针当前的偏移量
+    参数：文件指针
+    返回值：成功返回文件指针所在的位置，失败返回 -1 并置位错误码
 */
 
-//eg:
-fseek(fp, 0, SEEK_END);		//将光标定位在结尾
-ftell(fp);	//该函数的返回值，就是文件大小
+// eg:
+fseek(fp, 0, SEEK_END);		// 将光标定位在结尾
+ftell(fp);	// 该函数的返回值，就是文件大小
 
 void rewind(FILE *stream);
 /*
-功能：将文件光标定位在开头：fseek(fp, 0, SEEK_SET);
-参数：文件指针
-返回值：无
+    功能：将文件光标定位在开头，相当于 fseek(fp, 0, SEEK_SET);
+    参数：文件指针
+    返回值：无
 */
 ```
 
 ```c
-// code here
+#include <stdio.h>
+
+// 定义学生结构体
+typedef struct {
+    char name[20];
+    int age;
+    double gpa;
+} Student;
+
+int main(int argc, const char * argv[]) {
+    FILE *fp = NULL;
+
+    // 以只写的方式打开文件
+    if ((fp = fopen("./file.txt", "w")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    // 定义三个学生
+    Student s[3] = {
+        { "Alice", 10, 3.5 },
+        { "Bob", 20, 3.8 },
+        { "Charlie", 30, 4.0 }
+    };
+
+    // 将学生信息写入文件
+    fwrite(s, sizeof(Student), 3, fp);
+    
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+
+    // 以只读的形式再次打开文件
+    if ((fp = fopen("./file.txt", "r")) == NULL) {
+        perror("fopen error");
+        return -1;
+    }
+
+    fseek(fp, 0, SEEK_END);
+    printf("The size of file is %ld.\n", ftell(fp));
+    // Output: The size of file is 96.
+
+    // 读取第二个学生的信息
+    Student tmp;
+    fseek(fp, sizeof(Student), SEEK_SET);
+    fread(&tmp, sizeof(tmp), 1, fp);
+    printf("name: %s, age: %d, gpa: %lf\n", tmp.name, tmp.age, tmp.gpa);
+    // Output: name: Bob, age: 20, gpa: 3.800000
+
+    // 关闭文件
+    fclose(fp);
+    fp = NULL;
+    return 0;
+}
 ```
 
 ### 2.2.13 补充知识
