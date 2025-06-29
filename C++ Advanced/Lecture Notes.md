@@ -2326,8 +2326,8 @@ int main(int argc, const char * argv[]) {
 	}
 	/*
 		Output: name: Alice, age: 10, gpa: 3.500000
-				name: Bob, age: 20, gpa: 3.800000
-				name: Charlie, age: 30, gpa: 4.000000
+			name: Bob, age: 20, gpa: 3.800000
+			name: Charlie, age: 30, gpa: 4.000000
 	*/
 
 	// 关闭文件
