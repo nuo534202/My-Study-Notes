@@ -2,6 +2,8 @@
 
 下面内容都是我的学习笔记。
 
+[TOC]
+
 # 第一章 初识 MySQL
 
 ## 第一节 数据库基础知识
@@ -171,7 +173,7 @@ USE lesson;
 | 全文索引 | 支持 | 不支持 |
 | 表空间大小 | 较小 | 较大，约2倍 |
 
-- 事务：涉及的所有操作是一个整体，要么都执行，要么都不执行。
+- 事务：涉及的所有操作是一个整体，要么都执行，要么都不执行（原子性）。
 - 数据行锁定：一行数据，当一个用户在修改该数据时，可以直接将该条数据锁定。
 - 如何选择数据表的类型：当涉及的业务操作以查询居多，修改和删除较少时，可以使用 `MyISAM`。当涉及的业务操作经常会有修改和删除 操作时，使用 `InnoDB`。
 
@@ -192,10 +194,10 @@ CREATE TABLE [IF NOT EXISTS] 数据表名称(
 ```sql
 CREATE TABLE IF NOT EXISTS student(
     `number` VARCHAR(30) NOT NULL PRIMARY KEY COMMENT '学号，主键',
-    name VARCHAR(30) NOT NULL COMMENT '姓名',
-    sex TINYINT(1) UNSIGNED DEFAULT 0 COMMENT '性别：0-男 1-女 2-其他',
-    age TINYINT(3) UNSIGNED DEFAULT 0 COMMENT '年龄',
-    score DOUBLE(5, 2) UNSIGNED COMMENT '成绩'
+    `name` VARCHAR(30) NOT NULL COMMENT '姓名',
+    `sex` TINYINT(1) UNSIGNED DEFAULT 0 COMMENT '性别：0-男 1-女 2-其他',
+    `age` TINYINT(3) UNSIGNED DEFAULT 0 COMMENT '年龄',
+    `score` DOUBLE(5, 2) UNSIGNED COMMENT '成绩'
 )ENGINE=InnoDB CHARSET=UTF8 COMMENT='学生表';
 ```
 
@@ -225,6 +227,7 @@ CREATE TABLE IF NOT EXISTS student(
 	```sql
 	-- MODIFY 只能修改字段的修饰属性
 	ALTER TABLE 表名 MODIFY 字段名 列类型(长度) [修饰属性] [键/索引] [注释];
+	
 	-- CHANGE 可以修改字段的名字以及修饰属性
 	ALTER TABLE 表名 CHANGE 字段名 新字段名 列类型(长度) [修饰属性] [键/索引] [注释];
 	```
