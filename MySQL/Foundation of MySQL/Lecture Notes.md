@@ -591,3 +591,31 @@ SELECT * FROM student WHERE score >= 60 LIMIT 3, 3;
 **注意**：如果一个查询中包含分组、排序和分页，那么它们之间必须按照分组 $\to$ 排序 $\to$ 分页的先后顺序排列。
 
 # 第三章 MySQL 常用函数
+
+## 课前回顾
+
+现有员工表 `emp`，包含字段员工编号 (`no`)，类型为整数，长度为 $20$，是主键，自增长，非空；姓名 (`name`)，类型为字符串，长度为 $20$，非空；性别 (`sex`)，类型为字符串，长度为 $2$，默认值为"男"；年龄 (`age`)，类型为整数，长度为 $3$，非空；所属部门 (`dept`)，类型为字符串，长度为 $20$，非空；薪资 (`salary`)，类型为浮点数，长度为 $10$，小数点后面保留 $2$ 位有效数字，非空。
+
+```sql
+CREATE TABLE IF NOT EXISTS emp(
+	`no` BIGINT(20) AUTO_INCREMENT PRIMARY KEY NOT NULL COMMENT '员工编号',
+	`name` VARCHAR(20) NOT NULL COMMENT '姓名', 
+	`sex` VARCHAR(2) DEFAULT '男' COMMENT '性别',
+	`age` TINYINT(3) UNSIGNED NOT NULL COMMENT '年龄',
+	`dept` VARCHAR(20) NOT NULL COMMENT '所属部门',
+	`salary` DOUBLE(10, 2) NOT NULL COMMENT '薪资'
+)ENGINE=InnoDB CHARSET=UTF8 COMMENT '员工表';
+```
+
+**1. 向员工表插入如下数据：**
+
+| 姓名 | 性别 | 年龄 | 部门 | 薪资 |
+| :---: | :---: | :---: | :---: | :---: |
+| 张三 | 男 | 22 | 研发部 | 13000 |
+| 李刚 | 男 | 24 | 研发部 | 14000 |
+| 金凤 | 女 | 23 | 财务部 | 8000 |
+| 肖青 | 女 | 26 | 财务部 | 9000 |
+| 张华 | 男 | 28 | 研发部 | 15000 |
+| 董钰 | 女 | 24 | 研发部 | 12000 |
+| 吴梅 | 女 | 24 | 测试部 | 9000 |
+| 王玲 | 女 | 26 | 测试部 | 9500 |
