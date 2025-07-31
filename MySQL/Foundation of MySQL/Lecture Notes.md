@@ -2,8 +2,6 @@
 
 下面内容都是我的学习笔记。
 
-[TOC]
-
 # 第一章 初识 MySQL
 
 ## 第一节 数据库基础知识
@@ -227,7 +225,7 @@ CREATE TABLE IF NOT EXISTS student(
 	```sql
 	-- MODIFY 只能修改字段的修饰属性
 	ALTER TABLE 表名 MODIFY 字段名 列类型(长度) [修饰属性] [键/索引] [注释];
-	
+
 	-- CHANGE 可以修改字段的名字以及修饰属性
 	ALTER TABLE 表名 CHANGE 字段名 新字段名 列类型(长度) [修饰属性] [键/索引] [注释];
 	```
@@ -507,4 +505,89 @@ SELECT ALL/DISTINCT * | 字段名1 AS 别名1[,字段名1 AS 别名1, ..., 字�
 
 分组查询所得的结果只是该组中的第一条数据。
 
-**示例**：从学生表查询成绩在80分以上的学生信息并按性别分组。
+**示例**：从学生表查询成绩在 $80$ 分以上的学生信息并按性别分组。
+
+```sql
+SELECT * FROM student WHERE score > 80 GROUP BY sex;
+```
+
+**示例**：从学生表查询成绩在 $60$ ~ $80$ 之间的学生信息并按性别和年龄分组。
+
+```sql
+SELECT * FROM student WHERE score BETWEEN 60 AND 80 GROUP BY sex, age;
+```
+
+#### 4.2 聚合函数
+
+- `COUNT()`：统计满足条件的数据总条数
+	**示例**：从学生表查询成绩在 $80$ 分以上的学生人数。
+	```sql
+	SELECT COUNT(*) total FROM student WHERE score > 80;
+	```
+- `SUM()`：只能用于数值类型的字段或者表达式，计算该满足条件的字段值的总和。
+	**示例**：从学生表查询不及格的学生人数和总成绩。
+	```sql
+	SELECT COUNT(*) totalCount, SUM(score) totalScore FROM student WHERE score < 60;
+	```
+- `AVG()`：只能用于数值类型的字段或者表达式，计算该满足条件的字段值的平均值。
+	**示例**：从学生表查询男生、女生、其他类型的学生的平均成绩。
+	```sql
+	SELECT sex, AVG(score) avgScore FROM student GROUP BY sex;
+	```
+- `MAX()`：只能用于数值类型的字段或者表达式，计算该满足条件的字段值的最大值。
+	**示例**：从学生表查询学生的最大年龄。
+	```sql
+	SELECT MAX(age) FROM student;
+	```
+- `MIN()`：只能用于数值类型的字段或者表达式，计算该满足条件的字段值的最小值。
+	**示例**：从学生表查询学生的最低分。
+	```sql
+	SELECT MIN(score) FROM student;
+	```
+
+#### 4.3 分组查询结果筛选
+
+```sql
+SELECT ALL/DISTINCT * | 字段名1 AS 别名1[,字段名1 AS 别名1, ..., 字段名n AS 别名n] FROM 表名 WHERE 查询条件 GROUP BY 字段名1，字段名2,..., 字段名n HAVING 筛选条件
+```
+
+分组后如果还需要满足其他条件，则需要使用 `HAVING` 子句来完成。
+
+**示例**：从学生表查询年龄在 $20$ ~ $30$ 之间的学生信息并按性别分组，找出组内平均分在 $74$ 分以上的组。
+
+```sql
+SELECT * FROM student WHERE age BETWEEN 20 AND 30 GROUP BY sex HAVING avg(score) > 74;
+```
+
+### 5、排序
+
+```sql
+SELECT ALL/DISTINCT * | 字段名1 AS 别名1[,字段名1 AS 别名1, ..., 字段名n AS 别名n] FROM 表名 WHERE 查询条件 ORDER BY 字段名1 ASC|DESC，字段名2 ASC|DESC,..., 字段名n ASC|DESC
+```
+
+`ORDER BY` 必须位于 `WHERE` 条件之后。
+
+**示例**：从学生表查询年龄在 $18$ ~ $30$ 岁之间的学生信息并按成绩从高到低排列，如果成绩相同，则按年龄从小到大排列。
+
+```sql
+SELECT * FROM student WHERE age BETWEEN 18 AND 30 ORDER BY score DESC, age ASC;
+```
+
+### 6、分页
+
+```sql
+SELECT ALL/DISTINCT * | 字段名1 AS 别名1[,字段名1 AS 别名1, ..., 字段名n AS 别名n] FROM 表名 WHERE 查询条件 LIMIT 偏移量, 查询条数
+```
+
+- `LIMIT` 的第一个参数表示偏移量，也就是跳过的行数。
+- `LIMIT` 的第二个参数表示查询返回的最大行数，可能没有给定的数量那么多行。
+
+示例：从学生表分页查询成绩及格的学生信息，每页显示 $3$ 条，查询第 $2$ 页学生信息。
+
+```sql
+SELECT * FROM student WHERE score >= 60 LIMIT 3, 3;
+```
+
+**注意**：如果一个查询中包含分组、排序和分页，那么它们之间必须按照分组 $\to$ 排序 $\to$ 分页的先后顺序排列。
+
+# 第三章 MySQL 常用函数
