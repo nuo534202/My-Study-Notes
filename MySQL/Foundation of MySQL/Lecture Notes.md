@@ -733,3 +733,88 @@ SELECT * FROM emp ORDER BY salary DESC LIMIT 5, 5;
 | `ADDDATE(d, n)` | 返回起始日期 `d` 加上 `n` 天的日期 | `SELECT ADDDATE(NOW(), 3);` |
 | `TIMESTAMPDIFF(INTERVAL expr type, d1, d2)` | 返回给定日期 `d1` 和 `d2` 的时间差，按指定时间间隔类型计算（如年、月、日等 ） | `SELECT TIMESTAMPDIFF(YEAR, '2019-10-10', '2021-10-1'); ` |
 | `DATE_FORMAT(d, f)` | 返回给定日期格式的字符串，按格式 `f` 格式化日期 `d` | `SELECT DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s');` |
+
+## 第四节 条件判断函数
+
+### 1、IF函数
+
+#### 1.1 IF(条件, 表达式 1, 表达式 2)
+
+如果条件满足，则使用表达式 1，否则使用表达式 2。
+
+```sql
+SELECT id, stu_name, course, IF(score >= 60, '及格','不及格') score FROM score;
+```
+
+#### 1.2 IFNULL(字段, 表达式)
+
+如果字段值为空，则使用表达式，否则，使用字段值。
+
+**示例**：将未参加考试的学生成绩展示为缺考。
+
+```sql
+SELECT id, stu_name, course, IFNULL(score, '缺考') score FROM score;
+```
+
+### 2、CASE...WHEN 语句
+
+#### 2.1 CASE WHEN
+
+**语法**
+
+```sql
+CASE WHEN 条件1 THEN 表达式1 [WHEN 条件2 THEN 表达式2 ...] ELSE 表达式n END
+```
+
+如果条件 $1$ 满足，则使用表达式 $1$；【如果条件 $2$ 满足，则使用表达式 $2$，... 】否则，使用表达式 $n$。相当于 C++/Java 中的多重 if..else 语句。
+
+**示例**
+
+```sql
+SELECT (CASE WHEN (course = 'Java') THEN score ELSE 0 END) Java FROM score;
+```
+
+**行转列**：查询每位学生的各课程成绩。
+
+```sql
+SELECT
+	stu_name,
+	course,
+	MAX(CASE WHEN (course = 'Java') THEN score ELSE 0 END) Java,
+	MAX(CASE WHEN (course = 'Html') THEN score ELSE 0 END) Html,
+	MAX(CASE WHEN (course = 'Jsp') THEN score ELSE 0 END) Jsp,
+	MAX(CASE WHEN (course = 'Spring') THEN score ELSE 0 END) Spring
+FROM score
+GROUP BY stu_name;
+```
+
+#### 2.2 CASE ... WHEN 语句
+
+**语法**
+
+```sql
+CASE 表达式 WHEN 值1 THEN 表达式1 [WHEN 值2 THEN 表达式2 ...] ELSE 表达式n END
+```
+
+如果表达式的执行结果为值 $1$，则使用表达式$1$；【执行结果为值 $2$，则使用表达式 $2$，...】否则，使用
+表达式 $n$。相当于 Java 中的 switch 语句。
+
+**示例**
+
+```sql
+SELECT (CASE course WHEN 'Java' THEN score ELSE 0 END) Java FROM score;
+```
+
+**行转列**：查询每位学生的各课程成绩。
+
+```sql
+SELECT
+	stu_name,
+	course,
+	MAX(CASE course WHEN 'Java' THEN score ELSE 0 END) Java,
+	MAX(CASE course WHEN 'Html' THEN score ELSE 0 END) Html,
+	MAX(CASE course WHEN 'Jsp' THEN score ELSE 0 END) Jsp,
+	MAX(CASE course WHEN 'Spring' THEN score ELSE 0 END) Spring
+FROM score
+GROUP BY stu_name;
+```
