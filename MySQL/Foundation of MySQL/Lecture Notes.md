@@ -619,3 +619,117 @@ CREATE TABLE IF NOT EXISTS emp(
 | 董钰 | 女 | 24 | 研发部 | 12000 |
 | 吴梅 | 女 | 24 | 测试部 | 9000 |
 | 王玲 | 女 | 26 | 测试部 | 9500 |
+
+```sql
+INSERT INTO emp(`no`, name ,sex, age, dept, salary) VALUES(DEFAULT, '张三', '男', 22, '研发部', 13000);
+INSERT INTO emp(name ,sex, age, dept, salary) VALUES('李刚', '男', 24, '研发部', 14000);
+INSERT INTO emp VALUES(DEFAULT, '金凤', '女', 23, '财务部', 8000);
+INSERT INTO emp(name ,sex, age, dept, salary) VALUES('肖青', '女', 26, '财务部', 9000), ('张华', '男', 28, '研发部', 15000), ('董钰', '女', 24, '研发部', 12000);
+INSERT INTO emp VALUES(DEFAULT, '吴梅', '女', 24, '测试部', 9000), (DEFAULT, '王玲', '女', 26, '测试部', 9500);
+```
+
+**2. 吴梅因工作出色而被提升为测试主管，薪资调整为 11000**
+
+```sql
+UPDATE emp SET salary = 11000 WHERE name = '吴梅';
+```
+
+**3. 研发部金凤离职**
+
+```sql
+DELETE FROM emp WHERE name = '金凤';
+```
+
+**4. 从员工表中查询出平均年龄小于 25 的部门**
+
+```sql
+SELECT dept FROM emp GROUP BY dept HAVING AVG(age) < 25;
+```
+
+**5. 从员工表中统计研发部的最高薪资、最低薪资、平均薪资和总薪资**
+
+```sql
+SELECT MAX(salary), MIN(salary), AVG(salary), SUM(salary) FROM emp WHERE dept = '研发部';
+```
+
+**6. 从员工表中统计各个部门的员工数量**
+
+```sql
+SELECT dept, COUNT(*) FROM emp GROUP BY dept;
+```
+
+**7. 从员工表中查询薪资在 10000 以上的员工信息并按薪资从高到低排列**
+
+```sql
+SELECT * FROM emp WHERE salary > 10000 ORDER BY salary DESC;
+```
+
+**8. 从员工表中分页查询员工信息，每页显示 5 条员工信息，按薪资从高到低排列，查询第 2 页员工信息**
+
+```sql
+SELECT * FROM emp ORDER BY salary DESC LIMIT 5, 5;
+```
+
+## 第一节 常用数学函数
+
+| 函数 | 说明 | 示例 |
+| --- | --- | --- |
+| `ABS(X)` | 返回 `X` 的绝对值。 | `SELECT ABS(-8);` |
+| `FLOOR(X)` | 返回不大于 `X` 的最大整数。 | `SELECT FLOOR(1.3);` |
+| `CEIL(X)` | 返回不小于 `X` 的最小整数。 | `SELECT CEIL(1.3);` |
+| `TRUNCATE(X, D)` | 返回数值 `X` 保留到小数点后 `D` 位的值。 | `SELECT TRUNCATE(1.2328, 3);` |
+| `ROUND(X)` | 返回离 `X` 最近的整数。 | `SELECT ROUND(1.8);` |
+| `ROUND(X, D)` | 保留 `X` 小数点后 `D` 位的值，阶截断的时候要四舍五入。 | `SELECT ROUND(1.2323, 3);` |
+| `RAND()` | 返回 $0$ ~ $1$ 的随机数。 | `SELECT RAND();` |
+| `MOD(N, M)` | 返回 `N` 除以 `M` 之后的余数。 | `SELECT MOD(9, 2);` |
+
+## 第二节 常用字符函数
+
+以下是转换后的 Markdown 表格源代码：
+
+| 函数 | 说明 | 示例 |
+| --- | --- | --- |
+| `CHAR_LENGTH(str)` | 计算字符串字符个数。 | `SELECT CHAR_LENGTH('中国');` |
+| `LENGTH(str)` | 返回值为字符串 `str` 的长度，单位为字节。 | `SELECT LENGTH('中国');` |
+| `CONCAT(s1, s2, ...)` | 将多个字符串拼接在一起，其中任意一个为 `NULL` 则返回值为 `NULL`。 | `SELECT CONCAT('ad','mn');` |
+| `LOWER(str)` <br> `LOCASE(str)` | 将 `str` 中的字母全部转换成小写。 | `SELECT LOWER('ABC');` <br> `SELECT LCASE('ABC');` |
+| `UPPER(str)` <br> `UCASE(str)` | 将字符串中的字母全部转换成大写。 | `SELECT UPPER('abcde');` <br> `SELECT UCASE('abcde');` |
+| `LEFT(s, n)` <br> `RIGHT(s, n)` | 前者返回字符串 `s` 从最左边开始的 `n` 个字符；后者返回字符串 `s` 从最右边开始的 `n` 个字符。 | `SELECT LEFT('abcdefg', 5);` <br> `SELECT RIGHT('abcdefg', 5);` |
+| `LTRIM(s)` <br> `RTRIM(s)` | 前者返回字符串 `s`，其左边所有空格被删除；后者返回字符串 `s`，其右边所有空格被删除。 | `SELECT LTRIM('  abcde  ');` <br> `SELECT RTRIM('  abcde  ');` |
+| `TRIM(s)` | 返回字符串 `s` 删除了两边空格之后的字符串。 | `SELECT TRIM('abcde');` |
+| `REPLACE(s, s1, s2)` | 返回一个字符串，用字符串 `s2` 替代字符串 `s` 中所有的字符串 `s1`。 | `SELECT REPLACE('ababac', 'ab', 'd');` |
+| `SUBSTRING(s, n, len)` | 从字符串 `s` 中返回一个第 `n` 个字符开始、长度为 `len` 的字符串。 | `SELECT SUBSTRING('abcdef', 2, 3);` |
+| `CHAR_LENGTH(str)` | 计算字符串字符个数。 | `SELECT CHAR_LENGTH('中国');` |
+| `LENGTH(str)` | 返回值为字符串 `str` 的长度，单位为字节。 | `SELECT LENGTH('中国');` |
+
+**练习**
+
+1. 查询计科和软工各有多少人。
+	```sql
+	SELECT LEFT(class, 2), COUNT(*) FROM stu GROUP BY LEFT(class, 2);
+	```
+2. 查询名字有 $4$ 个字的学生信息。
+	```sql
+	SELECT * FROM stu WHERE CHAR_LENGTH(`name`) = 4;
+	```
+3. 查询成绩能够被 $10$ 整除的考试信息。
+	```sql
+	SELECT * FROM score WHERE MOD(score, 10) = 0;
+	```
+
+## 第三节 日期和时间函数
+
+| 函数 | 说明 | 示例 |
+| --- | --- | --- |
+| `CURDATE()` <br> `CURRENT_DATE()` | 返回当前日期 | `SELECT CURDATE();` |
+| `CURTIME()` <br> `CURRENT_TIME()` | 返回当前时间 | `SELECT CURTIME();` |
+| `NOW()` <br> `CURRENT_TIMESTAMP()` <br> `SYSDATE()` | 返回当前日期和时间 | `SELECT NOW();` |
+| `YEAR(d)` | 返回日期 `d` 中的年 | `SELECT YEAR(NOW());` |
+| `MONTH(d)` | 返回日期 `d` 中的月份值，范围 $1$ ~ $12$ | `SELECT MONTH(NOW());` |
+| `DAYOFMONTH(d)` | 返回给定日期 `d` 是当月的第几天 | `SELECT DAYOFMONTH(NOW());` |
+| `HOUR(d)` | 返回给定日期 `d` 的小时数 | `SELECT HOUR(NOW());` |
+| `MINUTE(d)` | 返回给定日期 `d` 的分钟数 | `SELECT MINUTE(NOW());` |
+| `SECOND(d)` | 返回给定日期 `d` 的秒数 | `SELECT SECOND(NOW());` |
+| `ADDDATE(d, n)` | 返回起始日期 `d` 加上 `n` 天的日期 | `SELECT ADDDATE(NOW(), 3);` |
+| `TIMESTAMPDIFF(INTERVAL expr type, d1, d2)` | 返回给定日期 `d1` 和 `d2` 的时间差，按指定时间间隔类型计算（如年、月、日等 ） | `SELECT TIMESTAMPDIFF(YEAR, '2019-10-10', '2021-10-1'); ` |
+| `DATE_FORMAT(d, f)` | 返回给定日期格式的字符串，按格式 `f` 格式化日期 `d` | `SELECT DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%s');` |
