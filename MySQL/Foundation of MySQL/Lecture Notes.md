@@ -818,3 +818,44 @@ SELECT
 FROM score
 GROUP BY stu_name;
 ```
+
+**练习**：查询各班级性别人数，查询结果格式如图。
+
+| 班级 | 男 | 女 | 其他 |
+| :---: | :---: | :---: | :---: |
+| 计科 $2$ 班 | $811$ | $822$ | $845$ |
+| 软工 $1$ 班 | $825$ | $868$ | $809$ |
+| 软工 $2$ 班 | $833$ | $841$ | $841$ |
+| 计科 $1$ 班 | $798$ | $862$ | $845$ |
+
+```sql
+SELECT
+	class,
+	SUM(CASE sex WHEN 0 THEN 1 ELSE 0 END) '男',
+	SUM(CASE sex WHEN 1 THEN 1 ELSE 0 END) '女',
+	SUM(CASE sex WHEN 2 THEN 1 ELSE 0 END) '其他'
+FROM stu
+GROUP BY class;
+```
+
+## 第五节 其他函数
+
+### 1、数字格式化函数
+
+`FORMAT(X, D)`，将数字 `X` 格式化，将 `X` 保留到小数点后 `D` 位，截断时要进行四舍五入。
+
+**示例**
+
+```sql
+SELECT FORMAT(1.2353, 2);
+```
+
+### 2、系统信息函数
+
+| 函数 | 说明 | 示例 |
+| --- | --- | --- |
+| `VERSION()` | 获取数据库版本号 | `SELECR VERSION();` |
+| `CONNECTION_ID()` | 获取服务器的连接数 | `SELECT CONNECTION_ID();` |
+| `DATABASE()` <br> `SCHEMA()` | 获取当前数据库名 | `SELECT DATABASE()` <br> `SELECT SCHEMA();` |
+| `USER()` <br> `SELECT_USE()` <br> `SESSION_USER()` | 获取当前用户名 | `SELECT USER()` |
+| `CURRENT_USER()` <br> `CURRENT_USER` | 获取当前用户名 | `SELECT CURRENT_USER` |
