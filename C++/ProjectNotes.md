@@ -2,7 +2,9 @@
 
 ## Tasks
 
-- C++ 风格指南：[Google C++ 风格指南 - 内容目录](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents.html)
+- C++ 风格指南
+	- [Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)
+	- [Google C++ 风格指南 - 内容目录](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents.html)
 - Spdlog 日志库：[spdlog](https://github.com/gabime/spdlog)
 	- 掌握 spdlog，学习 spdlog 日志库的使用，简单看看 spdlog 的源码。
 	- 了解如何集成 spdlog。
