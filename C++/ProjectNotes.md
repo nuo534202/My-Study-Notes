@@ -64,6 +64,16 @@
 	- 基于线程池封装 strand 模块。
 	- 封装整个系统的任务管理器 Context。
 	- 系统内的所有并发任务都通过 Context 调度。
+- 研究 [系统](https://git.cpptrain.top/logger/logger-tutorial/-/blob/main/example/logger_example.cc?ref_type=heads) 的 example。
+	- 了解本日志系统的对外 API。
+	- 了解如何使用本日志系统。
+	- 了解 LogHandle。
+	- 了解 Sink。
+	- 了解 LogLevel。
+	- 了解 Flush。
+	- 了解 Log 接口。
+- 了解系统整体框架搭建；日志处理接口定义了系统的对外 API，是用户与系统交互的主要方式。
+	- 学习 `log_handle.h` 和 `log_factory.cc`。
 
 - 添加日志队列
 	- 项目中现在的 `压缩 & 加密 & 写入 mmap cache`，这一整个步骤会加锁保护，多线程等情况下锁会有开销，这里可以考虑使用消息队列的形式，在外部写动作和真正压缩钱，这中间加一个 `消息队列`，外部的消息同意进入消息队列中，内部使用规定线程做 `压缩 & 加密 & 写入 mmap cache` 的操作，这样可以进一步提高日志的写入速度。
