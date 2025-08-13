@@ -1,6 +1,6 @@
 # My-Study-Notes
 
-This repository includes some of my study notes and materials. My Records of competitive programming is in [Comptetitive-Programming](https://github.com/nuo534202/Competitve-Programming/)
+This repository includes some of my study notes and materials. My records of competitive programming is in [Comptetitive-Programming](https://github.com/nuo534202/Competitve-Programming/)
 
 - C++: include materials related to C++.
 
