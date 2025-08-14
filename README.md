@@ -1,13 +1,13 @@
 # My-Study-Notes
 
-This repository includes some of my study notes and materials. My records of competitive programming is in [Comptetitive-Programming](https://github.com/nuo534202/Competitve-Programming/)
+This repository includes some of my study notes and materials. My records of competitive programming is in [Comptetitive-Programming](https://github.com/nuo534202/Competitve-Programming/).
 
-- C++: include materials related to C++.
+- C++: includes materials related to C++.
 
 The notes and materials in following files are from 01 University.
 
 - C++
-  - C++ Advanced: include the lecture notes about C++ advanced course.
-- DSA (Data Structure and Algorithms): include the lecture notes about DSA course.
+  - C++ Advanced: includes the lecture notes about C++ advanced course.
+- DSA (Data Structure and Algorithms): includes the lecture notes about DSA course.
 - MySQL
-  - Foundation of MySQL: include the lecture notes about Foundation of MySQL course.
+  - Foundation of MySQL: includes the lecture notes about Foundation of MySQL course.
