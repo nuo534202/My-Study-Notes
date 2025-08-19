@@ -3824,9 +3824,11 @@ int mkfifo(const char *pathname, mode_t mode);
 // code here
 ```
 
-<!-- img -->
+<!-- img: my implement image -->
 
 练习：使用有名管道实现，两个进程之间相互通信
+
+![img17](./img/img17.png)
 
 提示：可以使用多进程或多线程
 
@@ -3846,7 +3848,9 @@ int mkfifo(const char *pathname, mode_t mode);
       - 同步：表示多个任务有先后顺序的执行，例如去银行办理业务。
       - 异步：表示多个任务没有先后顺序执行，例如你在敲代码，你妈妈在做饭。
 2. 通信原理图
-<!-- img -->
+
+![img18](./img/img18.png)
+
 3. 信号的种类及功能
 
 ```
@@ -3911,7 +3915,7 @@ sighandler_t signal(int signum, sighandler_t handler);
 // code here
 ```
 
-<!-- img -->
+<!-- img: my implement image -->
 
 6. 使用信号的方式完成对僵尸进程的回收：当子进程退出后，向父进程发送一个 `SIGCHLD` 的信号，当父进程收到该信号后，可以将其进行捕获，在信号处理函数中，可以以非阻塞的方式回收僵尸进程。
 
@@ -3971,7 +3975,7 @@ ipcs -s：可以查看信号量的信息
 ipcrm -q/m/s ID：可以删除指定 ID 的 IPC 对象
 ```
 
-<!-- img -->
+<!-- img: my implement image -->
 
 4. 上述的三种通信方式，也是借助内核空间完成的相关通信，原理是在内核空间创建出相关的对象容器，在进行进程间通信时，可以将信息放入对象中，另一个进程就可以从该容器中取数据了。
 5. 与内核提供的管道、信号通信不同：system V 的 ipc 对象实现了数据传递的容器与程序相分离，也就是说，即使程序以己经结束，但是放入到容器中的数据依然存在，除非将容器手动删除
@@ -3980,7 +3984,7 @@ ipcrm -q/m/s ID：可以删除指定 ID 的 IPC 对象
 
 1. 实现原理
 
-<!-- img -->
+![img19](./img/img19.png)
 
 2. 消息队列实现的 API
 
@@ -4130,7 +4134,7 @@ int msgctl(int msqid, int cmd, struct msqid_ds *buf);
 
 1. 原理图
 
-<!-- img -->
+![img20](./img/img20.png)
 
 2. 共享内存的 API
 
@@ -4246,7 +4250,7 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 
 练习：使用消息队列完成两个进程间相互通信。
 
-<!-- img -->
+![img21](./img/img21.png)
 
 `test.c`
 
@@ -4260,13 +4264,13 @@ int shmctl(int shmid, int cmd, struct shmid_ds *buf);
 // code here
 ```
 
-<!-- img -->
+<!-- img: my implement image -->
 
 ### 3.3.8 信号量（信号灯集）
 
 1. 原理图
 
-<!-- img -->
+![img22](./img/img22.png)
 
 2. 信号量相关 API。
 
