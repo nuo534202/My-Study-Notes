@@ -2326,8 +2326,8 @@ int main(int argc, const char * argv[]) {
 	}
 	/*
 		Output: name: Alice, age: 10, gpa: 3.500000
-			name: Bob, age: 20, gpa: 3.800000
-			name: Charlie, age: 30, gpa: 4.000000
+				name: Bob, age: 20, gpa: 3.800000
+				name: Charlie, age: 30, gpa: 4.000000
 	*/
 
 	// 关闭文件
@@ -2895,21 +2895,21 @@ int main(int argc, const char * argv[]) {
 
 ### 3.1.1 引入目的
 
-1. 实现 **多任务并发执行** 的一种途径
-2. 可以实现数据在多个进程之间进行通信，共同处理整个程序的相关数据，提供工作效率
+1. 实现 **多任务并发执行** 的一种途径。
+2. 可以实现数据在多个进程之间进行通信，共同处理整个程序的相关数据，提供工作效率。
 
 ### 3.1.2 多进程相关概念
 
 1. **进程是程序的一次执行过程**，有一定的生命周期，包含了创建态、就绪态、执行态、挂起态、死亡态。
 2. **进程是计算机资源分配的基本单位**，系统会给每个进程分配 $0-4G$ 的虚拟内存，其中 $0-3G$ 是用户空间， $3-4G$ 是内核空间。
-   - 其中多个进程中 $0-3G$ 的用户空间是相互独立的，但是， $3-4G$ 的内核空间是相互共享的。
+   - 其中多个进程中 $0-3G$ 的用户空间是相互独立的，但是 $3-4G$ 的内核空间是相互共享的。
    - 用户空间细分为：栈区、堆区、静态区。
 3. 进程的调度机制：时间片轮询上下文切换机制。
 
 ![img7](./img/img7.png#pic_center)
 
 4. 并发和并行的区别：
-   - 并发：针对于单核 CPU 系统在处理多个任务时，使用相关的调度机制，实现多个任务进行细化时间片轮询时，在宏观上感觉是多个任务同时执行的操作，同一时刻，只有一个任务在被 CPU 处理。
+   - 并发：针对于单核 CPU 系统在处理多个任务时，使用相关的调度机制，实现多个任务进行细化时间片轮询时，在宏观上感觉是多个任务同时执行的操作，但实际上同一时刻，只有一个任务在被 CPU 处理。
    - 并行：是针对于多核 CPU 而言，处理多个任务时，同一时间，每个 CPU 处理的任务之间是并行的，实现的是真正意义上多个任务同时执行的。
 
 ### 3.1.3 进程的内存管理（重点了解）
@@ -2922,8 +2922,7 @@ int main(int argc, const char * argv[]) {
 ### 3.1.4 进程和程序的区别
 
 - 进程是动态的，进程是程序的一次执行过程，是有生命周期的，进程会被分配 $0-3G$ 的用户空间，进程是在内存上存着的。
-- 程序是静态的，没有所谓的生命周期，程序存储在磁盘设备上的二进制文件
-	hello.cpp $\to$ g++ $\to$ hello
+- 程序是静态的，没有所谓的生命周期，程序存储在磁盘设备上的二进制文件。例如，通过 hello.cpp $\to$ g++ $\to$ hello 这个过程生成的 `hello` 就是一个程序。 
 
 ### 3.1.5 进程的种类
 
@@ -2936,7 +2935,7 @@ int main(int argc, const char * argv[]) {
 ### 3.1.6 进程 PID 的概念
 
 1. PID (Process ID)：进程号，进程号是一个大于等于 $0$ 的整数值，是进程的唯一标识，不可以重复。
-2. PPID (Parent Process ID)：父进程号，系统中允许的每个进程，都是拷贝父进程资源得到的。
+2. PPID (Parent Process ID)：父进程号，系统中运行的每个进程，都是拷贝父进程资源得到的。
 3. 在 Linux 系统中的 `/proc` 目录下的数字命名的目录其实都是一个进程。
 
 <!-- img -->
@@ -2955,41 +2954,120 @@ int main(int argc, const char * argv[]) {
 1. `ps` 指令：能够查看当前运行的进程相关属性。
 
 `ps -ef`：能够显示进程之间的关系。
-```
-// code here
 
-UID：用户 ID 号
-PID：进程号
-PPID：父进程号
-C：用处不大
-STIME：开始运行的时间
+```
+PPID  PID  PGID  SID  TTY  TPGID  STAT  UID  TIME  COMMAND
+0     1    1     1    ?    -1     Ss    0    0:01  /usr/lib/systemd/systemd --sw
+0     2    0     0    ?    -1     S     0    0:00  [kthreadd]
+2     3    0     0    ?    -1     I<    0    0:00  [rcu_gp]
+2     4    0     0    ?    -1     I<    0    0:00  [rcu_par_gp]
+2     5    0     0    ?    -1     I     0    0:00  [kworker/0:0-ata_sff]
+2     6    0     0    ?    -1     I<    0    0:00  [kworker/0:0H-events_highpri]
+2     7    0     0    ?    -1     I     0    0:00  [kworker/0:1-events]
+2     8    0     0    ?    -1     I     0    0:00  [kworker/u256:0-events_unboun]
+2     9    0     0    ?    -1     I<    0    0:00  [mm_percpu_wq]
+2     10   0     0    ?    -1     S     0    0:00  [ksoftirqd/0]
+2     11   0     0    ?    -1     R     0    0:00  [rcu_sched]
+2     12   0     0    ?    -1     S     0    0:00  [migration/0]
+2     13   0     0    ?    -1     S     0    0:00  [watchdog/0]
+2     14   0     0    ?    -1     S     0    0:00  [cpuhp/0]
+2     16   0     0    ?    -1     S     0    0:00  [kdevtmpfs]
+2     17   0     0    ?    -1     I<    0    0:00  [netns]
+
+PPID：Parent Process ID，父进程号
+PID：Process ID，进程号
+PGID：Process Group ID，进程组号
+SID：Session ID，会话号
 TTY：如果是问号表示这个进程不依赖于终端而存在
-CDM：名称
+TPGID：Terminal Process Group，终端前台进程组号
+STAT：Process State，进程状态
+UID：User ID，用户号
+TIME：CPU 时间
+COMMAND：命令
 ```
 
 `ps -ajx`：能够显示当前进程的状态
 
 ```
-// code here
+PPID  PID  PGID  SID  TTY  TPGID  STAT  UID  TIME  COMMAND
+0     1    1     1    ?    -1     Ss    0    0:01  /usr/lib/systemd/systemd --sw
+0     2    0     0    ?    -1     S     0    0:00  [kthreadd]
+2     3    0     0    ?    -1     I<    0    0:00  [rcu_gp]
+2     4    0     0    ?    -1     I<    0    0:00  [rcu_par_gp]
+2     6    0     0    ?    -1     I<    0    0:00  [kworker/0:0H-events_highpri]
+2     9    0     0    ?    -1     I<    0    0:00  [mm_percpu_wq]
+2     10   0     0    ?    -1     S     0    0:00  [ksoftirqd/0]
+2     11   0     0    ?    -1     R     0    0:00  [rcu_sched]
 
-PGID：进程组 ID
-SID：会话组 ID
-STAT：进程的状态
+PPID：Parent Process ID，父进程号
+PID：Process ID，进程号
+PGID：Process Group ID，进程组号
+SID：Session ID，会话号
+TTY：如果是问号表示这个进程不依赖于终端而存在
+TPGID：Terminal Process Group，终端前台进程组号
+STAT：Process State，进程状态
+UID：User ID，用户号
+TIME：CPU 时间
+COMMAND：命令
 ```
 
 `ps -aux`：可以查看当前进程对 CPU 和内存的占用率
 
 ```
-// code here
+USER  PID  %CPU  %MEM  VSZ    RSS  TTY  STAT  START  TIME  COMMAND
+root  1    0.0   0.6   241152 4928 ?    Ss    00:48  0:01  /usr/lib/systemd/systemd --sw
+root  2    0.0   0.0   0      0    ?    S     00:48  0:00  [kthreadd]
+root  3    0.0   0.0   0      0    ?    I<    00:48  0:00  [rcu_gp]
+root  4    0.0   0.0   0      0    ?    I<    00:48  0:00  [rcu_par_gp]
+root  6    0.0   0.0   0      0    ?    I<    00:48  0:00  [kworker/0:0H-events_highpri]
+root  9    0.0   0.0   0      0    ?    I<    00:48  0:00  [mm_percpu_wq]
+root  0    0.0   0.0   0      0    ?    S     00:48  0:00  [ksoftirqd/0]
+root  11   0.0   0.0   0      0    ?    R     00:48  0:00  [rcu_sched]
+root  12   0.0   0.0   0      0    ?    S     00:48  0:00  [migration/0]
+root  13   0.0   0.0   0      0    ?    S     00:48  0:00  [watchdog/0]
 
+USER：用户
+PID：Process ID，进程号
 %CPU：CPU 占用率
 %MEM：内存占用率
+VSZ：Virtual Memory Size，虚拟内存大小
+RSS：Resident Set Size，常驻内存集大小
+TTY：如果是问号表示这个进程不依赖于终端而存在
+STAT：Process State，进程状态
+START：进程启动时间
+TIME：CPU 时间
+COMMAND：命令
 ```
 
 2. `top`：动态查看进程的相关属性
 
 ```
-// code here
+top - 01:42:41 up 54 min,  1 user,  load average: 0.11, 0.06, 0.02
+Tasks: 237 total,   1 running, 236 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.3 us,  0.0 sy,  0.0 ni, 99.0 id,  0.0 wa,  0.3 hi,  0.3 si,  0.0 st
+MiB Mem :    782.0 total,     56.7 free,    542.1 used,    183.2 buff/cache
+MiB Swap:   2140.0 total,   1368.5 free,    771.5 used.    119.5 avail Mem 
+
+PID   USER   PR   NI   VIRT     RES     SHR    S   %CPU   %MEM   TIME+     COMMAND
+3014  nuo    20   0    11.2g    36812   12356  S   0.7    4.6    0:05.58   node
+3077  nuo    20   0    31.9g    164320  16988  S   0.7    20.5   0:09.77   node
+2452  root   20   0    219760   22228   1660   S   0.3    2.8    0:01.34   sssd_kcm
+2707  nuo    20   0    534496   2068    1844   S   0.3    0.3    0:02.73   vmtoolsd
+3078  nuo    20   0    1187156  28796   11772  S   0.3    3.6    0:04.07   node
+1     root   20   0    241152   4920    3128   S   0.0    0.6    0:01.52   systemd
+
+PID：Process ID，进程号
+USER：用户
+PR：Priority，优先级
+NI：Nice Value，用于影响进程调度的优先级，负值表示高优先级，正值表示低优先级
+VIRT：Virtual Memory Size，虚拟内存大小
+RES：Resident Memory Size，当前实际占用的物理内存
+SHR：Shared Memory Size，共享内存大小
+S：Process Status，进程状态
+%CPU：CPU 占用率
+%MEM：内存占用率
+TIME+：进程自启动以来占用的 CPU 时间
+COMMAND：命令
 ```
 
 3. `kill` 指令：发送信号的指令
@@ -3030,7 +3108,7 @@ SIGCHLD：当子进程退出后，会向父进程发送该信号
 4. `pidof`：查看进程的进程号
 	使用方式：`pidof 进程名`
 
-<!-- img -->
+![img9](./img/img9.png#pic_center)
 
 ### 3.1.9 进程状态的切换
 
@@ -3058,23 +3136,1275 @@ SIGCHLD：当子进程退出后，会向父进程发送该信号
 2. 状态切换的实例
 
 	(1) 如果有停止的进程，可以在终端输入指令：`jobs -l` 查看停止进程的作业号。
-	(2) 通过使用指令：`bg 作业号` 实现将停止的进程进入后台运行状态，如果只有一个停止的进程，输入 bg 不加作业号也可以。
-	(3) 对后台运行的进程，输入 fg 作业号 实现将后台运行的进程切换到前台运行。
+	(2) 通过使用指令：`bg 作业号` 实现将停止的进程进入后台运行状态，如果只有一个停止的进程，输入 `bg` 不加作业号也可以。
+	(3) 对后台运行的进程，输入 `fg` 作业号实现将后台运行的进程切换到前台运行。
 	(4) 直接将可执行程序后台运行：`./可执行程序 &`
 
-<!-- img -->
+![img10](./img/img10.png#pic_center)
 
-<!-- img -->
+3. 进程主要状态的转换（五态图）
+
+![img11](./img/img11.png#pic_center)
 
 ## 3.2 多进程实现
 
-进程的创建过程，是子进程通过拷贝父进程得到的，新进程的创建直接拷贝父进程的资源，只需改变很少部分的数据即可，保留了父进程的大部分的数据信息（遗传基因），所以这个拷贝过程，系统通过一个函数 `fork` 来自动完成。
+进程的创建过程，是子进程通过拷贝父进程得到的，新进程的创建直接拷贝父进程的资源，只需改变很少部分的数据即可，保留了父进程的大部分的数据信息（遗传基因），系统通过函数 `fork` 来实现这个拷贝过程。
 
 ### 3.2.1 进程的创建：fork
 
+```c
+#include <unistd.h>
+
+pid_t fork(void);
+/*
+	功能：通过拷贝父进程得到一个子进程
+	参数：无
+	返回值：成功在父进程中得到子进程的 pid，在子进程中得到 0，失败返回 -1 并置位错误码
+*/
+```
+
+1. 不关注返回值的案例
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main(int argc, const char *argv[]) {
+    printf("Hello World\n");    // 只有父进程会执行
+    fflush(stdout);
+    fork();     // 创建一个子进程
+    printf("hello World\n");    // 父子进程都会执行
+    fflush(stdout);
+    while (1);  // 防止进程结束
+    return 0;
+}
+```
+
+**Output**
+
+```
+Hello World
+hello World
+hello World
+```
+
+2. 多个 fork 创建进程
+
+![img12](./img/img12.png#pic_center)
+
+如果不关注返回值的话，有 $n$ 个 `fork` 就会产生 $2^n$ 个进程
+
+3. 关注返回值的情况
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main(int argc, const char *argv[]) {
+    pid_t pid = -1;
+    pid = fork();
+    printf("pid = %d\n", pid);
+    // 对于父进程而言 pid > 0，对于子进程而言 pid = 0
+
+    if (pid > 0) {
+        // 父进程要执行的代码
+    } else if (pid == 0) {
+        // 子进程要执行的代码
+    } else {
+        perror("fork error");
+        return -1;
+    }
+
+    while (1);
+    return 0;
+}
+```
+
+4. 父子进程并发执行的案例
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main(int argc, const char *argv[]) {
+    pid_t pid = -1;
+    pid = fork();
+    printf("pid = %d\n", pid);
+    // 对于父进程而言 pid > 0，对于子进程而言 pid = 0
+
+    if (pid > 0) {
+        // 父进程要执行的代码
+        while (1) {
+            printf("Parent Process\n");
+            sleep(1);
+        }
+    } else if (pid == 0) {
+        // 子进程要执行的代码
+        while (1) {
+            printf("Child Process\n");;
+            sleep(1);
+        }
+    } else {
+        perror("fork error");
+        return -1;
+    }
+    while (1);
+    return 0;
+} 
+```
+
+**Output**：抢占式执行
+
+```
+pid = 8703
+Parent Process
+pid = 0
+Child Process
+Parent Process
+Child Process
+Parent Process
+Child Process
+Parent Process
+Child Process
+...
+```
+
+### 3.2.2 父子进程号的获取：getpid/getppid
+
+```c
+#include <sys/types.h>
+#include <unistd.h>
+
+pid_t getpid(void);
+/*
+	功能：获取当前进程的进程号
+	参数：无
+	返回值：当前进程的进程号
+*/
+
+pid_t getppid(void);
+
+/*
+	功能：获取当前进程的父进程的进程号
+	参数：无
+	返回值：当前进程的父进程的进程号
+*/
+```
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+
+int main(int argc, const char *argv[]) {
+    pid_t pid = -1; // 定义用于存储进程号的变量
+    pid = fork();   // 创建进程
+
+    if (pid > 0) {
+        // 父进程执行代码
+        printf("self pid = %d, child pid = %d, parent pid = %d\n", getpid(), pid, getppid());
+    } else if (pid == 0) {
+        // 子进程执行代码
+        printf("self pid = %d, parent pid = %d\n", getpid(), getppid());
+    } else {
+        perror("fork error");
+        return -1;
+    }
+    while (1);  // 防止进程退出
+    // 如果没有 while (1);，父进程会在子进程执行前退出，子进程就会变成孤儿进程，
+    // 接着子进程会被 1 号进程收养，此时子进程的父进程则变为了 1 号进程
+    return 0;
+}
+```
+
+**Output**
+
+```
+self pid = 8894, child pid = 8895, parent pid = 8070
+self pid = 8895, parent pid = 8894
+```
+
+### 3.2.3 进程退出：exit/_exit
+
+- 上述两个函数都可以完成进程的退出，区别是在退出进程时，是否刷新标准 IO 的缓冲区。
+- `exit` 属于库函数，使用该函数退出进程时，会刷新标准 IO 的缓冲区后退出。
+- `_exit` 属于系统调用（内核提供的函数），使用该函数退出进程时，不会刷新标准 IO 的缓冲区。
+
+```c
+#include <stdlib.h>
+void exit(int status);
+/*
+	功能：退出当前进程，并刷新当前进程打开的标准 IO 的缓冲区
+	参数：进程退出时的状态，会将改制与 0377 进行位与运算后，返回给回收资源的进程
+	返回值：无
+*/
+
+#include <unistd.h>
+void _exit(int status);
+/*
+	功能：退出当前进程，不刷新当前进程打开的标准 IO 的缓冲区
+	参数：进程退出时的状态，会将改制与 0377 进行位与运算后，返回给回收资源的进程
+	返回值：无
+*/
+```
+
+### 3.2.4 进程资源回收：wait/waitpid
+
+- 有两个函数可以完成对进程资源的回收。
+- `wait` 是阻塞回收任意一个子进程的资源函数。
+- `waitpid` 可以阻塞，也可以非阻塞完成对指定的进程号进程资源回收。
+
+```c
+#include <sys/types.h>
+#include <sys/wait.h>
+
+pid_t wait(int *status);
+/*
+	功能：阻塞回收子进程的资源
+	参数：接收子进程退出时的状态，获取子进程退出时的状态与 0377 进行位与后的结果，如果不愿意接收，可以填 NULL
+	返回值：成功返回回收资源的那个进程的 pid 号，失败返回 -1 并置位错误码
+*/
+
+pid_t waitpid(pid_t pid, int *status, int options);
+/*
+	功能：可以阻塞也可以非阻塞回收指定进程的资源
+	参数1：进程号
+		>0：表示回收指定的进程，进程号位 pid（常用）
+		=0：表示回收当前进程所在进程组中的任意一个子进程
+		=-1：表示回收任意一个子进程（常用）
+		<-1：表示回收指定进程组中的任意一个子进程，进程组 id 为给定的 pid 的绝对值
+	参数2：接收子进程退出时的状态，获取子进程退出时的状态与 0377 进行位与后的结果，如果不愿意接收，可以填 NULL
+	参数3：是否阻塞
+		0：表示阻塞等待 ：waitpid(-1, &status, 0) 等价于 wait(&status) 
+		WNOHANG：表示非阻塞
+	返回值：
+		>0: 返回的是成功回收的子进程 pid 号
+		=0：表示本次没有回收到子进程
+		=-1：出错并置位错误码
+*/
+```
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+
+int main(int argc, const char *argv[]) {
+    pid_t pid = -1; // 定义用于存储进程号的变量
+    pid = fork();   // 创建进程
+
+    if (pid > 0) {
+        // 父进程执行代码
+        printf("self pid = %d, child pid = %d, parent pid = %d\n", getpid(), pid, getppid());
+        sleep(8);
+        wait(NULL); // 回收子进程资源
+        printf("wait\n");
+    } else if (pid == 0) {
+        // 子进程执行代码
+        printf("self pid = %d, parent pid = %d\n", getpid(), getppid());
+        printf("Child Process\n");
+        sleep(3);
+        exit(EXIT_SUCCESS);
+    } else {
+        perror("fork error");
+        return -1;
+    }
+    while (1);  // 防止进程退出
+    // 如果没有 while (1);，父进程会在子进程执行前退出，子进程就会变成孤儿进程，
+    // 接着子进程会被 1 号进程收养，此时子进程的父进程则变为了 1 号进程
+    return 0;
+}
+```
+
+**Output**
+
+```
+self pid = 9721, child pid = 9722, parent pid = 9516
+self pid = 9722, parent pid = 9721
+Child Process
+wait
+```
+
+![img13](./img/img13.png#pic_center)
+
+练习：使用多进程完成两个文件的拷贝工作，父进程拷贝前一半内容，子进程拷贝后一半内容，父进程要回收子进程的资源。
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+
+/*
+*   功能：获取源文件大小；
+*       如果目标文件不存在，创建目标文件；否则清空目标文件
+*   参数：
+*       srcFile：char 类型的指针，指向源文件名字符串
+*       dstFile：char 类型的指针，指向目标文件名字符串
+*   返回值：int，代表源文件大小
+*/
+int getFileSize(char* srcFile, char *dstFile);
+
+/*
+*   功能：复制文件内容
+*   参数：
+*       srcFile：char 类型的指针，指向源文件名字符串
+*       dstFile：char 类型的指针，指向目标文件名字符串
+*       start：int 类型，复制的起始位置
+*       len：int 类型，复制的长度
+*   返回值：int，0 代表成功，-1 代表失败
+*/
+int copyFile(char* srcFile, char *dstFile, int start, int len);
+
+int main(int argc, const char * argv[]) {
+    // 获取源文件和目标文件的文件名
+    char srcFile[50], dstFile[50];
+    scanf("%s%s", srcFile, dstFile);
+
+    int len = getFileSize(srcFile, dstFile);
+
+    pid_t pid = -1;
+    pid = fork();
+    if (pid > 0) {
+        // 父进程执行程序
+        copyFile(srcFile, dstFile, 0, len / 2);
+        wait(NULL);
+    } else if (pid == 0) {
+        // 子进程执行程序
+        copyFile(srcFile, dstFile, len / 2, len - len / 2);
+        exit(EXIT_SUCCESS);
+    } else {
+        perror("fork error");
+        return -1;
+    }
+}
+
+int getFileSize(char* srcFile, char *dstFile) {
+    int src = -1, dst = -1;
+    // 以只读的形式打开源文件
+    if ((src = open(srcFile, O_RDONLY)) == -1) {
+        perror("Source file does not exist");
+        return -1;
+    }
+
+    // 以只写的形式打开目标文件
+    if ((dst = open(dstFile, O_WRONLY | O_CREAT | O_TRUNC, 0644)) == -1) {
+        perror("Open destination file error");
+        return -1;
+    }
+
+    // 获取文件大小
+    int len = lseek(src, 0, SEEK_END);
+
+    // 关闭文件
+    close(src), close(dst);
+    src = dst = -1;
+
+    return len;
+}
+
+int copyFile(char* srcFile, char *dstFile, int start, int len) {
+    int src = -1, dst = -1;
+    // 以只读的形式打开源文件
+    if ((src = open(srcFile, O_RDONLY)) == -1) {
+        perror("Source file does not exist");
+        return -1;
+    }
+
+    // 以只写的形式打开目标文件
+    if ((dst = open(dstFile, O_WRONLY)) == -1) {
+        perror("Open destination file error");
+        return -1;
+    }
+    
+    lseek(src, start, SEEK_SET), lseek(dst, start, SEEK_SET);
+    char buf[128];
+    int tot = 0;
+    while (1) {
+        int res = read(src, buf, sizeof(buf));
+        tot += res;
+        // 复制结束
+        if (!res || tot >= len) {
+            write(dst, buf, res - (tot - len));
+            break;
+        }
+        write(dst, buf, res);
+    }
+    return 0;
+}
+```
+
+### 3.2.5 父进程创建两个进程并为其回收资源
+
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <sys/wait.h>
+#include <stdlib.h>
+
+int main() {
+    pid_t pid1 = fork(); // 创建大儿子
+    if (pid1 > 0) {
+        // 父进程
+        pid_t pid2 = fork(); // 创建二儿子
+        if (pid2 > 0) {
+            // 父进程
+            printf("Parent Process\n");
+            // 回收两个进程资源
+            wait(NULL);
+            wait(NULL);
+        } else if (pid2 == 0) {
+            sleep(3);
+            printf("Child Process 2\n");
+            exit(EXIT_SUCCESS);
+        } else {
+            perror("Child 2 fork error");
+        }
+    } else if (pid1 == 0) {
+        // 子进程
+        sleep(3);
+        printf("Child Process 1\n");
+        exit(EXIT_SUCCESS);
+    } else {
+        perror("Child 1 fork error");
+        return -1;
+    }
+    return 0;
+}
+```
+
+**Output**
+
+```
+Parent Process
+Child Process 2
+Child Process 1
+```
+
+或者
+
+```
+Parent Process
+Child Process 1
+Child Process 2
+```
+
+两种结果都有可能，取决于时间片轮询时调用子进程的顺序
+
+### 3.2.6 僵尸进程和孤儿进程
+
+1. 孤儿进程：当前进程还正在运行，其父进程已经退出了。
+	说明：每个进程退出后，其分配的系统资源应该由其父进程进行回收，否则会造成资源的浪费
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main() {
+    pid_t pid = fork(); // 子进程
+    if (pid > 0) {
+        // 父进程
+        sleep(5);
+        exit(EXIT_SUCCESS);
+    } else if (pid == 0) {
+        // 子进程
+        while (1) {
+            printf("Child Process\n");
+            sleep(1);
+        }
+    } else {
+        perror("Child fork error");
+        return -1;
+    }
+    return 0;
+}
+```
+
+![img14](./img/img14.png#pic_center)
+
+2. 僵尸进程：当前进程已经退出了，但是其父进程没有为其回收资源
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+
+int main() {
+    pid_t pid = fork(); // 子进程
+    if (pid > 0) {
+        // 父进程
+        while (1) {
+            printf("Parent Process\n");
+            sleep(1);
+        }
+    } else if (pid == 0) {
+        // 子进程
+        printf("Child Process\n");
+        exit(EXIT_SUCCESS);
+    } else {
+        perror("Child fork error");
+        return -1;
+    }
+    return 0;
+}
+```
+
+![img15](./img/img15.png#pic_center)
+
 ## 3.3 进程间通信 IPC
 
+1. 由于多个进程的用户空间是相互独立的，其栈区、堆区、静态区的数据都是彼此私有的，所以不可能通过用户空间中的区域完成多个进程之间数据的通信。
+2. 可以使用外部文件来完成多个进程之间数据的传递，一个进程向文件中写入数据，另一个进程从文件中读取数据。该方式要必须保证写进程先执行，然后再执行读进程，要保证进程执行的同步性。
+3. 我们可以利用内核空间来完成对数据的通信工作，本质上，在内核空间创建一个特殊的区域，一个进程向该区域中存放数据，另一个进程可以从该区域中读取数据。
 
+![img16](./img/img16.png#pic_center)
+
+4. 引入原因：用户空间中的数据，不能作为多个进程之间数据交换的容器
+
+```c
+#include <stdio.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <sys/wait.h>
+
+int main() {
+    pid_t pid = fork(); // 子进程
+    int num = 520;
+    if (pid > 0) {
+        // 父进程
+        num = 1314;
+        printf("Parent Process: num = %d\n", num);  // 1314
+        wait(NULL);
+    } else if (pid == 0) {
+        // 子进程
+        sleep(3);
+        printf("Child Process: num = %d\n", num);   // 520
+    } else {
+        perror("Child fork error");
+        return -1;
+    }
+    return 0;
+}
+```
+
+**Output**
+
+```
+Parent Process: num = 1314
+Child Process: num = 520
+```
+
+### 3.3.1 进程间通信的基础概念
+
+1. IPC (interprocess communication)：进程间通信。
+2. 使用内核空间来完成多个进程间相互通信，根据使用的容器或方式不同，分为三类通信机制。
+3. 进程间通信方式分类。
+	(1) 内核提供的通信方式（传统的通信方式）：无名管道、有名管道、信号。
+	(2) system V 提供的通信方式：消息队列、共享内存、信号量（信号灯集）。
+	(3) 套接字通信：socket、网络通信（跨主机通信）。
+
+### 3.3.2 无名管道
+
+1. 管道的原理：管道是一种特殊的文件，该文件不用于存储数据，只用于进程间通信。管道分为有名管道和无名管道。
+
+```
+文件类型：bcd-lsp
+b：块设备文件
+c：字符设备文件
+d：目录文件，文件夹
+-：普通文件
+l：链接文件
+s：套接字文件（网络编程）
+p：管道文件
+```
+
+2. 在内核空间创建出一个管道通信，一个进程可以将数据写入管道，经由管道缓冲到另一个进程中读取。
+3. 无名管道：没有名字的管道，会在内存中创建出该管道，不存在于文件系统，随着进程结束而消失。
+4. 无名管道仅适用于亲缘进程间通信，不适用于非亲缘进程间通信。
+5. 无名管道的 API。
+
+```c
+#include <unistd.h>
+
+int pipe(int fildes[2]);
+/*
+	功能：创建一个无名管道，并返回该管道的两个文件描述符
+	参数：是一个整型数组，用于返回打开的管道的两端的文件描述符，fildes[0] 表示读端 fildes[1] 表示写端
+	返回值：成功返回 0，失败返回 -1 并置位错误码
+*/
+```
+
+```c
+// code here
+```
+
+**Output**
+
+```
+// code here
+```
+
+6. 管道通信特点
+
+(1) 管道可以实现自己给自己发消息。
+
+(2) 对管道中数据的操作是一次性的，当管道中的数据被读取后，就从管道中消失了，再读取时会被阻塞。
+
+(3) 管道文件的大小：64K。
+
+(4) 由于返回的是管道文件的文件描述符，所以对管道的操作只能是文件 IO 相关函数，但是，不可以使用 `lseek` 对光标进行偏移，必须做到先进先出。
+
+(5) 管道的读写特点
+   - 当读端存在时：写端有多少写多少，直到写满 64K 后，在 `write` 处阻塞
+   - 当读端不存在时：写端再向管道中写入数据时，会发生管道破裂，内核空间会向用户空间发射一个 `SIGPIPE` 信号，进程收到该信号后，退出
+   - 当写端存在时：读端有多少读多少，没有数据，会在 `read` 出阻塞
+   - 当写端不存在时：读端有多少读多少，没有数据，不会在 `read` 处阻塞了
+
+(6) 管道通信是半双工通信方式
+   - 单工：只能进程 A 向 B 发送消息
+   - 半双工：同一时刻只能 A 向 B 发消息
+   - 全双工：任意时刻，AB 可以互相通信
+
+验证自己跟自己通信
+
+```c
+// code here
+```
+
+对管道文件大小的验证
+
+```c
+// code here
+```
+
+### 3.3.3 有名管道
+
+1. 顾名思义就是有名字的管道文件，会在文件系统中创建一个真实存在的管道文件。
+2. 既可以完成亲缘进程间通信，也可以完成非亲缘进程间通信。
+3. 有名管道的 API。
+
+```c
+#include <sys/types.h>
+#include <sys/stat.h>
+
+int mkfifo(const char *pathname, mode_t mode);
+
+/*
+	功能：创建一个管道文件，并存在与文件系统中
+	参数1：管道文件的名称
+	参数2：管道文件的权限，内容详见 open 函数的 mode 参数
+	返回值：成功返回 0，失败返回 -1 并置位错误码
+	注意：管道文件被创建后，其他进程就可以进行打开读写操作了，但是，必须要保证当前管道文件的两端都打开后，才能进行读写操作，否则函数会在 open 处阻塞
+*/
+```
+
+4. 案例
+
+`create.cpp`
+
+```c
+// code here
+```
+
+`send.cpp`
+
+```c
+// code here
+```
+
+`recv.cpp`
+
+```c
+// code here
+```
+
+<!-- img -->
+
+练习：使用有名管道实现，两个进程之间相互通信
+
+提示：可以使用多进程或多线程
+
+### 3.3.4 信号 (Signal)
+
+1. 信号相关概念
+	(1) 信号是软件模拟硬件的中断 (Interupt) 功能，信号是软件实现的，中断是硬件实现的。
+      - 中断：停止当前正在执行的事情，去做另一件事情。
+
+	(2) 信号是 Linux 内核实现的，没有内核就没有信号的概念。
+
+	(3) 用户可以给进程发信号：例如键入 `ctrl + c`。
+      - 内核可以向进程发送信号：例如 `SIGPIPE`。
+      - 一个进程可以给另一个进程发送信号，需要通过相关函数来完成。
+
+	(4) 信号通信是属于异步通信工作
+      - 同步：表示多个任务有先后顺序的执行，例如去银行办理业务。
+      - 异步：表示多个任务没有先后顺序执行，例如你在敲代码，你妈妈在做饭。
+2. 通信原理图
+<!-- img -->
+3. 信号的种类及功能
+
+```
+1) SIGHUP	2) SIGINT	3) SIGQUIT	4) SIGILL	5) SIGTRAP
+6) SIGABRT	7) SIGBUS	8) SIGFPE	9) SIGKILL	10) SIGUSR1
+11) SIGSEGV	12) SIGUSR2	13) SIGPIPE	14) SIGALRM	15) SIGTERM
+16) SIGSTKFLT	17) SIGCHLD	18) SIGCONT	19) SIGSTOP	20) SIGTSTP
+21) SIGTTIN	22) SIGTTOU	23) SIGURG	24) SIGXCPU	25) SIGXFSZ
+26) SIGVTALRM	27) SIGPROF	28) SIGWINCH	29) SIGIO	30) SIGPWR
+31) SIGSYS	34) SIGRTMIN	35) SIGRTMIN+1	36) SIGRTMIN+2	37) SIGRTMIN+3
+38) SIGRTMIN+4	39) SIGRTMIN+5	40) SIGRTMIN+6	41) SIGRTMIN+7	42) SIGRTMIN+8
+43) SIGRTMIN+9	44) SIGRTMIN+10	45) SIGRTMIN+11	46) SIGRTMIN+12	47) SIGRTMIN+13
+48) SIGRTMIN+14	49) SIGRTMIN+15	50) SIGRTMAX-14	51) SIGRTMAX-13	52) SIGRTMAX-12
+53) SIGRTMAX-11	54) SIGRTMAX-10	55) SIGRTMAX-9	56) SIGRTMAX-8	57) SIGRTMAX-7
+58) SIGRTMAX-6	59) SIGRTMAX-5	60) SIGRTMAX-4	61) SIGRTMAX-3	62) SIGRTMAX-2
+63) SIGRTMAX-1	64) SIGRTMAX
+
+1、一共可以发射 62 个信号，前 32 个是稳定信号，后面是不稳定信号
+2、常用的信号
+	SIGHUP：当进程所在的终端被关闭后，终端会给运行在当前终端的每个进程发送该信号，默认结束进程
+	SIGINT：中断信号，当用户键入 ctrl + c 时发射出来
+	SIGQUIT：退出信号，当用户键入 ctrl + / 是发送，退出进程
+	SIGKILL：杀死指定的进程
+	SIGSEGV：当指针出现越界访问时，会发射，表示段错误
+	SIGPIPE：当管道破裂时会发送该信号
+	SIGALRM：当定时器超时后，会发送该信号
+	SIGSTOP：暂停进程，当用户键入 ctrl + z 时发射
+	SIGTSTP：也是暂停进程
+	SIGTSTP、SIGUSR2：留给用户自定义的信号，没有默认操作
+	SIGCHLD：当子进程退出后，会向父进程发送该信号
+3、有两个特殊信号：SIGKILL 和 SIGSTOP，这两个信号既不能被捕获，也不能被忽略
+```
+
+4. 对应信号的处理方式有三种：捕获、忽略、默认
+5. 对信号的处理函数：`signal`
+
+```c
+#include <signal.h>
+
+typedef void (*sighandler_t)(int);
+
+sighandler_t signal(int signum, sighandler_t handler);
+/*
+	功能：将信号与信号处理方式绑定到一起
+	参数1：要处理的信号
+	参数2：处理方式
+		SIG_IGN：忽略
+		SIG_DFL：默认，一般信号的默认操作都是杀死进程
+		typedef void (*sighandler_t)(int)：用户自定义的函数
+	返回值：成功返回处理方式的起始地址，失败返回 SIG_ERR 并置位错误码
+	注意：只要程序与信号绑定一次，后续但凡程序收到该信号，对应的处理方式就会立即响应
+*/
+```
+
+```c
+// code here
+```
+
+尝试捕获和忽略 SIGKILL 信号
+
+```c
+// code here
+```
+
+<!-- img -->
+
+6. 使用信号的方式完成对僵尸进程的回收：当子进程退出后，向父进程发送一个 `SIGCHLD` 的信号，当父进程收到该信号后，可以将其进行捕获，在信号处理函数中，可以以非阻塞的方式回收僵尸进程。
+
+```c
+// code here
+```
+
+7. 信号发送函数：`kill`、`raise`
+
+```c
+#include <signal.h>
+
+int kill(pid_t pid, int sig);
+/*
+	功能：向指定进程或进程组发送信号
+	参数1：进程号或进程组号
+		>0：表示向执行进程发送信号
+		=0：向当前进程所在的进程组中的所有进程发送信号
+		=-1：向所有进程发送信号
+		<-1：向指定进程组发送信号，进程组的 id 号为给定 pid 的绝对值
+	参数2：要发送的信号
+	返回值：成功返回 0，失败返回 -1 并置位错误码
+*/
+
+#include <signal.h>
+int raise(int sig);
+/*
+	功能：向自己发送信号	等价于：kill(getpid(), sig);
+	参数：要发送的信号
+	返回值：成功返回 0，失败返回非 0 数组
+*/
+```
+
+```c
+// code here
+```
+
+**Output**
+
+```
+// code here
+```
+
+8. 总结：信号可以完成多个进程间通知作用，但是，不能进行数据传输功能。
+
+### 3.3.5 system V 提供的进程间通信概述
+
+1. 对于内核提供的三种通信方式，对于管道而言，只能实现单向的数据通信，对于信号通信而言，只能完成多进程之间消息的通知，不能起到数据传输的效果。为了解决上述问题，引入的系统 V进程间通信。
+2. system V 提供的进程间通信方式分别是：消息队列、共享内存、信号量（信号灯集）。
+3. 有关 system V 进程间通信对象相关的指令。
+
+```
+ipcs：可以查看所有的信息（消息队列、共享内存、信号量）
+ipcs -q：可以查看消息队列的信息
+ipcs -m：可以查看共享内存的信息
+ipcs -s：可以查看信号量的信息
+ipcrm -q/m/s ID：可以删除指定 ID 的 IPC 对象
+```
+
+<!-- img -->
+
+4. 上述的三种通信方式，也是借助内核空间完成的相关通信，原理是在内核空间创建出相关的对象容器，在进行进程间通信时，可以将信息放入对象中，另一个进程就可以从该容器中取数据了。
+5. 与内核提供的管道、信号通信不同：system V 的 ipc 对象实现了数据传递的容器与程序相分离，也就是说，即使程序以己经结束，但是放入到容器中的数据依然存在，除非将容器手动删除
+
+### 3.3.6 消息队列
+
+1. 实现原理
+
+<!-- img -->
+
+2. 消息队列实现的 API
+
+```c
+// 1、创建key值
+#include <sys/types.h>
+#include <sys/ipc.h>
+
+key_t ftok(const char *pathname, int proj_id);	//ftok("/", 'k');
+/*
+	功能：通过给定的文件以及给定的一个随机值，创建出一个 4 字节整数的 key 值，用于 system V IPC 对象的创建
+	参数1：一个文件路径，要求是已经存在的文件路径，提供了 key 值 3 字节的内容，其中，文件的设备号占 1 字节，文件的 inode 号占 2 字节
+	参数2：一个随机整数，取后 8 位（1 字节）跟前面的文件共同组成 key 值，必须是非 0 的数字
+	返回值：成功返回 key 值，失败返回 -1 并置位错误码
+*/
+
+// 2、通过key值，创建消息队列
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+int msgget(key_t key, int msgflg);
+/*
+	功能：通过给定的 key 值，创建出一个消息队列的对象，并返回消息队列的句柄 ID，后期可以通过该 ID 操作整个消息队列
+	参数1：key 值，该值可以是 IPC_PRIVATE，也可以是 ftok 创建出来的，前者只用于亲缘进程间的通信
+	参数2：创建标识
+		IPC_CREAT:创建并打开一个消息队列，如果消息队列已经存在，则直接打开
+		IPC_EXCL:确保本次创建处理的是一个新的消息队列，如果消息队列已经存在，则报错，错 误码位EEXIST
+		0664：该消息队列的操作权限
+		eg: IPC_CREAT|0664 或者 IPC_CREAT|IPC_EXCL|0664
+	返回值：成功返回消息队列的 ID 号，失败返回 -1 并置位错误码
+*/
+
+// 3、向消息队列中存放数据
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+int msgsnd(int msqid, const void *msgp, size_t msgsz, int msgflg);
+/*
+	功能：向消息队列中存放一个指定格式的消息
+	参数1：打开的消息队列的 id 号
+	参数2：要发送的消息的起始地址，消息一般定义为一个结构体类型，由用户手动定义
+		struct msgbuf {
+			long mtype;	// message type, must be > 0 消息的类型
+			char mtext[1];	// message data 消息正文
+			// ...
+		};
+	参数3：消息正文的大小
+	参数4：是否阻塞的标识
+		0：标识阻塞形式向消息队列中存放消息，如果消息队列满了，就在该函数处阻塞
+		IPC_NOWAIT:标识非阻塞的形式向消息队列中存放消息，如果消息队列满了，直接返回返回值：成功返回 0，失败返回 -1 并置位错误码
+*/
+
+// 4、从消息队列中取消息
+ssize_t msgrcv(int msqid, void *msgp, size_t msgsz, long msgtyp,int msgflg);
+/*
+	功能：从消息队列中取数指定类型的消息放入给定的容器中
+	参数1：打开的消息队列的 id 号
+	参数2：要接收的消息的起始地址，消息一般定义为一个结构体类型，由用户手动定义
+		struct msgbuf {
+			long mtype;	// message type, must be > 0 消息的类型
+			char mtext[1];	// message data 消息正文
+			// ...
+		};
+	参数3：消息正文的大小
+	参数4：要接收的消息类型
+		0：表示每次都取消息队列中的第一个消息，无论类型
+		>0：读取队列中第一个类型为 msgtyp 的消息
+		<0：读取队列中的一个消息，消息为绝对值小于 msgtyp 的第一个消息
+			eg：10-->8-->3-->6-->5-->20-->2
+			-5: 会从队列中绝对值小于5的类型的消息中选取第一个消息，就是 3
+	参数5：是否阻塞的标识
+		0：标识阻塞形式向消息队列中读取消息，如果消息队列空了，就在该函数处阻塞
+		IPC_NOWAIT：标识非阻塞的形式向消息队列中读取消息，如果消息队列空了，直接返回
+	返回值：成功返回实际读取的正文大小，失败返回 -1 并置位错误码
+*/
+
+// 5、销毁消息队列
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/msg.h>
+
+int msgctl(int msqid, int cmd, struct msqid_ds *buf);
+/*
+	功能：对给定的消息队列执行相关的操作，该操作由 cmd 参数而定
+	参数1：消息队列的 ID 号
+	参数2：要执行的操作
+		IPC_RMID：删除一个消息队列，当 cmd 为该值时，第三个参数可以省略填 NULL 即可
+		IPC_STAT：表示获取当前消息队列的属性，此时第三个参数就是存放获取的消息队列属性的容器起始地址
+		IPC_SET：设置当前消息队列的属性，此时第三个参数就是要设置消息队列的属性数据的起始地址
+	参数3：消息队列数据容器结构体，如果第二个参数为 IPC_RMID，则该参数忽略填 NULL 即可，如果是 IPC_STAT、IPC_SET 填如下结构体：
+		struct msqid_ds {
+			struct ipc_perm msg_perm;
+			// Ownership and permissions 消息队列的拥有者和权限
+			time_t msg_stime;
+			// Time of last msgsnd(2) 最后一次发送消息的时间
+			time_t msg_rtime;
+			// Time of last msgrcv(2) 最后一次接收消息的时间
+			time_t msg_ctime;
+			// Time of last change 最后一次状态改变的时间
+			unsigned long __msg_cbytes;
+			// Current number of bytes in queue (nonstandard) 已用字节数
+			msgqnum_t msg_qnum;	
+			/ Current number of messages in queue 消息队列中消息个数
+			msglen_t msg_qbytes;
+			// Maximum number of bytes allowed in queue 最大消息个数
+			pid_t msg_lspid;
+			// PID of last msgsnd(2) 最后 一次发送消息的进程
+			pid pid_t msg_lrpid;
+			// PID of last msgrcv(2) 最后 一次读取消息的进程 pid
+		};
+		该结构体的第一个成员类型如下：
+		struct ipc_perm {
+			key_t __key;	// Key supplied to msgget(2) key 值
+			uid_t uid;	// Effective UID of owner 当前进程的 uid
+			gid_t gid;	// Effective GID of owner 当前进程的组 ID
+			uid_t cuid;	// Effective UID of creator 消息队列创建者的用户 id
+			gid_t cgid;	// Effective GID of creator 消息队列创建者的组 id
+			unsigned short mode;	// Permissions 消息队列的权限
+			unsigned short __seq;	// Sequence number 队列号
+		};
+	返回值：成功返回 0，失败返回 -1 并置位错误码
+*/
+```
+
+3. 发送端实现
+
+```c
+// code here
+```
+
+4. 接收端实现
+
+```c
+// code here
+```
+
+5. 注意事项
+	(1) 对于消息而言，由两部分组成：消息的类型和消息正文，消息结构体由用户自定义。
+	(2) 对于消息队列而言，任意一个进程都可以向消息队列中发送消息，也可以从消息队列中取消息。
+	(3) 多个进程，使用相同的 key 值打开的是同一个消息队列。
+	(4) 对消息队列中的消息读取操作是一次性的，被读取后，消息队列中不存在该消息了。
+	(5) 消息队列的大小：16K7。
+
+### 3.3.7
+
+1. 原理图
+
+<!-- img -->
+
+2. 共享内存的 API
+
+```c
+// 1、创建key值
+#include <sys/types.h>
+#include <sys/ipc.h>
+
+key_t ftok(const char *pathname, int proj_id);	//ftok("/", 'k');
+/*
+	功能：通过给定的文件以及给定的一个随机值，创建出一个 4 字节整数的 key 值，用于 system V IPC 对象的创建
+	参数1：一个文件路径，要求是已经存在的文件路径，提供了 key 值 3 字节的内容，其中，文件的设备号占 1 字节，文件的 inode 号占 2 字节
+	参数2：一个随机整数，取后 8 位（1 字节）跟前面的文件共同组成 key 值，必须是非 0 的数字
+	返回值：成功返回 key 值，失败返回 -1 并置位错误码
+*/
+
+// 2、通过key值创建共享内存段
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+int shmget(key_t key, size_t size, int shmflg);
+/*
+	功能：申请指定大小的物理内存，映射到内核空间，创建出共享内存段
+	参数1：key 值，可以是 IPC_PRIVATE，也可以是 ftok 创建出来的 key 值
+	参数2：申请的大小，是一页（4096 字节）的整数倍，并且向上取整
+	参数3：创建标识
+		IPC_CREAT：创建并打开一个共享内存，如果共享内存已经存在，则直接打开
+		IPC_EXCL：确保本次创建处理的是一个新的共享内存，如果共享内存已经存在，则报错，错误码位 EEXIST
+		0664：该共享内存的操作权限
+		eg: IPC_CREAT|0664 或者 IPC_CREAT|IPC_EXCL|0664
+	返回值：成功返回共享内存段的 id，失败返回 -1 并置位错误码
+*/
+
+// 3、将共享内存段的地址映射到用户空间
+#include <sys/types.h>
+#include <sys/shm.h>
+
+void *shmat(int shmid, const void *shmaddr, int shmflg);
+/*
+	功能：将共享内存段映射到用户空间
+	参数1：共享内存的 id 号
+	参数2：物理内存的起始地址，一般填 NULL，由系统自动选择一个合适的对齐页
+	参数3：对共享内存段的操作
+		0：表示读写操作
+		SHM_RDONLY:只读
+	返回值：成功返回用于操作共享内存的指针，失败返回 (void*)-1 并置位错误码
+*/
+
+// 4、释放共享内存的映射关系
+int shmdt(const void *shmaddr);
+/*
+	功能：将进程与共享内存的映射取消
+	参数：共享内存的指针
+	返回值：成功返回 0，失败返回 -1 并置位错误码
+*/
+
+
+// 5、共享内存的控制函数
+#include <sys/ipc.h>
+#include <sys/shm.h>
+
+int shmctl(int shmid, int cmd, struct shmid_ds *buf);
+/*
+	功能：根据给定的不同的 cmd 执行不同的操作
+	参数1：共享内存的 ID
+	参数2：要操作的指令
+		IPC_RMID:删除共享内存段，第三个参数可以省略
+		IPC_STAT:获取当前共享内存的属性
+		IPC_SET:设置当前共享内存的属性
+	参数3：如果参数 2 为 IPC_RMID，则参数 3 可以省略填 NULL，如果参数 2 为另外两个，参数 3 填的内容为下面的结构体变量
+		struct shmid_ds {
+			struct ipc_perm shm_perm;	// Ownership and permissions
+			size_t shm_segsz;	// Size of segment (bytes)
+			time_t shm_atime;	// Last attach time
+			time_t shm_dtime;	// Last detach time
+			time_t shm_ctime;	// Last change time
+			pid_t shm_cpid;	// PID of creator
+			pid_t shm_lpid;	// PID of last shmat(2)/shmdt(2)
+			shmatt_t shm_nattch;	// No. of current attaches
+			// ...
+		};
+		该结构体的第一个成员结构体：
+		struct ipc_perm {
+			key_t __key;	// Key supplied to shmget(2)
+			uid_t uid;	// Effective UID of owner
+			gid_t gid;	// Effective GID of owner
+			uid_t cuid;	// Effective UID of creator
+			gid_t cgid;	// Effective GID of creator
+			unsigned short mode;	// Permissions + SHM_DEST and SHM_LOCKED flags
+			unsigned short __seq;	// Sequence number
+		};
+	返回值：成功返回0，失败饭hi-1并置位错误码
+*/
+```
+
+3. 发送端流程
+
+```c
+// code here
+```
+
+4. 接收端流程
+
+```c
+// code here
+```
+
+5. 注意
+	(1) 共享内存是多个进程共享同一个内存空间，使用时可能会产生竞态，为了解决这个问题，共享内存一般会跟信号量一起使用，完成进程的同步功能。
+	(2) 共享内存VS消息队列：消息队列能够保证数据的不丢失性，而共享内存能够保证数据的时效性。
+	(3) 对共享内存的读取操作不是一次性的，当读取后，数据依然存放在共享内存中。
+	(4) 使用共享内存，跟正常使用指针是一样的，使用时，无需再进行用户空间与内核空间的切换了，所以说，共享内存是所有进程间通信方式中效率最高的一种通信方式。
+
+练习：使用消息队列完成两个进程间相互通信。
+
+<!-- img -->
+
+`test.c`
+
+```c
+// code here
+```
+
+`test2.c`
+
+```c
+// code here
+```
+
+<!-- img -->
+
+### 3.3.8 信号量（信号灯集）
+
+1. 原理图
+
+<!-- img -->
+
+2. 信号量相关 API。
+
+```c
+// 1、创建key值
+#include <sys/types.h>
+#include <sys/ipc.h>
+
+key_t ftok(const char *pathname, int proj_id);	//ftok("/", 'k');
+/*
+	功能：通过给定的文件以及给定的一个随机值，创建出一个 4 字节整数的 key 值，用于 system V IPC 对象的创建
+	参数1：一个文件路径，要求是已经存在的文件路径，提供了 key 值 3 字节的内容，其中，文件的设备号占 1 字节，文件的 inode 号占 2 字节
+	参数2：一个随机整数，取后 8 位（1 字节）跟前面的文件共同组成 key 值，必须是非 0 的数字
+	返回值：成功返回 key 值，失败返回 -1 并置位错误码
+*/
+
+// 2、通过key值创建信号量集
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+
+int semget(key_t key, int nsems, int semflg);
+/*
+	功能：通过给定的 key 值创建一个信号量集
+	参数1：key 值，该值可以是 IPC_PRIVATE，也可以是 ftok 创建出来的，前者只用于亲缘进程间的通信
+	参数2：信号量数组中信号量的个数
+	参数3：创建标识
+		IPC_CREAT:创建并打开一个信号量集，如果信号量集已经存在，则直接打开
+		IPC_EXCL：确保本次创建处理的是一个新的信号量集，如果信号量集已经存在，则报错，错误码位 EEXIST
+		0664：该信号量集的操作权限
+		eg: IPC_CREAT|0664 或者 IPC_CREAT|IPC_EXCL|0664
+	返回值：成功返回信号量集的 id，失败返回 -1 并置位错误码
+*/
+
+// 3、关于信号量集的操作：P（申请资源）V（释放资源）
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+
+int semop(int semid, struct sembuf *sops, size_t nsops);
+/*
+	功能：完成对信号量数组的操作
+	参数1：信号量数据 ID 号
+	参数2：有关信号量操作的结构体变量起始地址，该结构体中包含了操作的信号量编号和申请还是释放的操作
+		struct sembuf {
+			unsigned short sem_num;
+			// semaphore number 要操作的信号量的编号
+			short sem_op;
+			// semaphore operation 要进行的操作，大于 0 表示释放资源，小于 0 表示申请资源
+			short sem_flg;
+			// operation flags 操作标识位，0标识阻塞方式，IPC_NOWAIT 表示非阻塞
+		}
+	参数3：本次操作的信号量的个数返回值：成功返回 0，失败返回 -1 并置位错误码
+*/
+
+// 4、关于信号量集的控制函数
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/sem.h>
+
+int semctl(int semid, int semnum, int cmd, ...);
+/*
+功能：执行有关信号量集的控制函数，具体控制内容取决于 cmd
+参数1：信号量集的 ID
+参数2：要操作的信号量的编号，编号是从 0 开始
+参数3：要执行的操作
+	IPC_RMID：表示删除信号量集，cmd 为该值时，参数 2 可以忽略，参数 4 可以不填
+	SETVAL：表示对参数 2 对应的信号量进行设置操作（初始值）
+	GETVAL：表示对参数 2 对应的信号量进行获取值操作
+	SETALL：设置信号量集中所有信号量的值
+	GETALL：获取信号量集中的所有信号量的值
+	IPC_STAT：表示获取当前信号量集的属性
+	IPC_SET：表示设置当前信号量集的属性
+参数4：根据不同的 cmd 值，填写不同的参数值，所以该处是一个共用体变量
+	union semun {
+		int val;	// Value for SETVAL 设置信号量的值
+		struct semid_ds *buf;	// Buffer for IPC_STAT, IPC_SET 关于信号量集属性的操作
+		unsigned short *array;	// Array for GETALL, SETALL 对于信号量集中所有信号量的操作	
+		struct seminfo *__buf;	// Buffer for IPC_INFO (Linux-specific)
+	};
+返回值：成功时：SETVAL、IPC_RMID 返回 0，GETVAL 返回当前信号量的值，失败返回 -1 并置位错误码
+	例如：
+	1) 给 0 号信号量设置初始值为 1
+		union semun us;	//定义一个共用体变量
+		us.val = 1;	//对该共用体变量赋值
+		semctl(semid, 0, SETVAL, us);	// 该函数就完成了对 0 号信号量设置初始值为 1 的操作
+	2) 删除信号量集 semctl(semid, 0, IPC_RMID);
+*/
+```
+
+3. 将上述函数进行二次封装，封装成为只有信号量集的创建、申请资源、释放资源、销毁信号量集
+
+`sem.h`
+
+```c
+// code here
+```
+
+`sem.c`
+
+```c
+```
+
+4. 使用信号量集完成共享内存中两个进程对共享内存使用的同步问题
+
+`shmsnd.c`
+
+```c
+// code here
+```
+
+`shmrcv.c`
+
+```c
+// code here
+```
+
+5. 注意
+	(1) 信号量集是完成多个进程间同步问题的，一般不进行信息的通信。
+	(2) 信号量集的使用，本质上是对多个 value 值进行管控，每个信号量控制一个进程，在进程执行前，申请一个信号量的资源，执行后，释放另一个信号量的资源。
+	(3) 如果当前进程申请的信号量值为 0，则当前进程在申请处阻塞，直到其他进程将该信号量中的资源增加到大于 0。
+
+6. 练习：进程 1 输出字符 A，进程 2 输出字符 B，进程 3 输出字符 C，使用信号量集完成，最终输出的结果为 ABCABCABCABC...
+
+`A.c`
+
+```c
+```
+
+`B.c`
+
+```c
+```
+
+`C.c`
+
+```c
+```
 
 # 四、多线程
 
